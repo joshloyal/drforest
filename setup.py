@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import sys
+import shutil
 import contextlib
 import subprocess
 import glob
@@ -12,9 +13,20 @@ from setuptools import Extension
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# armadillo includes
+ARMADILLO_INC = os.environ.get('ARMADILLO_INCLUDE')
+ARMADILLO_LIB = os.environ.get('ARMADILLO_LIB')
+
 # import ``__version__` from code base
 exec(open(os.path.join(HERE, 'drforest', 'version.py')).read())
 
+
+MOD_NAMES = [
+    'drforest.armadillo',
+    'drforest.dimension_reduction.dimension_reduction',
+    'drforest.tree._tree',
+    'drforest.ensemble._forest'
+]
 
 with open('requirements.txt') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
@@ -59,14 +71,13 @@ def find_cython(dir, files=None):
             files.append(path.replace(os.path.sep, ".")[:-4])
         elif os.path.isdir(path):
             find_cython(path, files)
-
     return files
 
 
 def clean(path):
-    for name in find_cython(path):
+    for name in MOD_NAMES:
         name = name.replace('.', os.path.sep)
-        for ext in ['*.c', '*.so', '*.o', '*.html']:
+        for ext in ['*.cpp', '*.so', '*.o', '*.html']:
             file_path = glob.glob(os.path.join(path, name + ext))
             if file_path and os.path.exists(file_path[0]):
                 os.unlink(file_path[0])
@@ -81,17 +92,18 @@ def get_sources():
     files = []
     source_path = get_include()
     if source_path:
-        for name in os.listdir(src_path):
-            path = os.path.join(src_path, name)
-            if os.path.isfile(path) and path.endswith(".c"):
-                files.append(path)
+        for root, dirs, src_files in os.walk(source_path):
+            for name in src_files:
+                path = os.path.join(root, name)
+                if path.endswith(".cpp"):
+                    files.append(path)
 
     return files
 
 
 def generate_cython(cython_cov=False):
     print("Cythonizing sources")
-    for source in find_cython(HERE):
+    for source in MOD_NAMES:
         source = source.replace('.', os.path.sep) + '.pyx'
         cythonize_source(source, cython_cov)
 
@@ -99,7 +111,7 @@ def generate_cython(cython_cov=False):
 def cythonize_source(source, cython_cov=False):
     print("Processing %s" % source)
 
-    flags = ['--fast-fail']
+    flags = ['--fast-fail', '--cplus']
     if cython_cov:
         flags.extend(['--directive', 'linetrace=True'])
 
@@ -112,28 +124,52 @@ def cythonize_source(source, cython_cov=False):
 
 
 def make_extension(ext_name, macros=[]):
-    ext_path = ext_name.replace('.', os.path.sep) + '.c'
-    mod_name = '.'.join(ext_name.split('.')[-2:])
-    include_dirs = [numpy.get_include(), "."]
+    ext_path = ext_name.replace('.', os.path.sep) + '.cpp'
+    include_dirs = [numpy.get_include(), ".", "./src"]
+    if ARMADILLO_INC:
+        include_dirs.append(ARMADILLO_INC)
+
+    library_dirs = ['/usr/lib']
+    if ARMADILLO_LIB:
+        library_dirs.append(ARMADILLO_LIB)
+
     if get_include():
-        include_dirs = [get_include] + include_dirs
+        include_dirs = [get_include()] + include_dirs
+
     return Extension(
-        mod_name,
+        ext_name,
         sources=[ext_path] + get_sources(),
         include_dirs=include_dirs,
-        extra_compile_args=["-O3", "-Wall", "-fPIC"],
-        define_macros=macros)
+        extra_compile_args=["-O3", "-fPIC", "-std=c++1z", "-fopenmp"],
+        extra_link_args=["-fopenmp"],
+        define_macros=macros,
+        libraries=['blas', 'lapack', 'armadillo', 'stdc++'],
+        library_dirs=library_dirs,
+        language='c++')
 
 
 def generate_extensions(macros=[]):
     ext_modules = []
-    for mod_name in find_cython(HERE):
+    for mod_name in MOD_NAMES:
         ext_modules.append(make_extension(mod_name, macros=macros))
 
     return ext_modules
 
-DISTNAME = 'Dimension Reduction Forest'
-DESCRIPTION = 'Dimension Reduction Forest'
+
+def copy_core():
+    """Copy core to src directiory (only works when run in
+    setup.py directory..."""
+    package_src = os.path.join(HERE, "src")
+
+    # copy C++ source into the package src directory
+    if os.path.exists(package_src):
+        shutil.rmtree(package_src)
+
+    shutil.copytree("core/src", package_src)
+
+
+DISTNAME = 'Dimension Reduction Forests'
+DESCRIPTION = 'Dimension Reduction Forests'
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
 MAINTAINER = 'Joshua D. Loyal'
@@ -147,8 +183,15 @@ CLASSIFIERS = []
 
 
 def setup_package():
+
     if len(sys.argv) > 1 and sys.argv[1] == 'clean':
+        package_src = os.path.join(HERE, "src")
+        if os.path.exists(package_src):
+            shutil.rmtree(package_src)
+
         return clean(HERE)
+
+    copy_core()
 
     cython_cov = 'CYTHON_COV' in os.environ
 
@@ -172,12 +215,7 @@ def setup_package():
             long_description=LONG_DESCRIPTION,
             zip_safe=False,
             classifiers=CLASSIFIERS,
-            package_data={
-                '': [
-                    'drforest' + os.path.sep + '*.pyx',
-                    'drforest' + os.path.sep + '.pxd'
-                ]
-            },
+            package_data={'': [ '*.pyx', '*.pxd']},
             include_package_data=True,
             packages=find_packages(),
             install_requires=INSTALL_REQUIRES,
@@ -186,5 +224,6 @@ def setup_package():
             tests_require=TEST_REQUIRES,
             ext_modules=ext_modules
         )
+
 if __name__ == '__main__':
     setup_package()
