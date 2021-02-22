@@ -23,7 +23,6 @@ exec(open(os.path.join(HERE, 'drforest', 'version.py')).read())
 
 MOD_NAMES = [
     'drforest.armadillo',
-    'drforest.dimension_reduction.dimension_reduction',
     'drforest.tree._tree',
     'drforest.ensemble._forest'
 ]

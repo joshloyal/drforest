@@ -3,12 +3,6 @@ from drforest.datasets.athletes import *
 from drforest.datasets.cpu_small import *
 from drforest.datasets.kin8nm import *
 from drforest.datasets.fishcatch import *
-from drforest.datasets.concrete import *
 from drforest.datasets.bodyfat import *
-from drforest.datasets.elevators import *
 from drforest.datasets.synthetic import *
 from drforest.datasets.openml import *
-from drforest.datasets.airfoil import *
-#from drforest.datasets.load_nhanes import *
-#from drforest.datasets.nhanes import *
-#from drforest.datasets.load_sarcos import *

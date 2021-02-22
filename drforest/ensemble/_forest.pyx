@@ -97,26 +97,3 @@ def dimension_reduction_forest(np.ndarray[np.double_t, ndim=2] X,
                                  oob_error, n_jobs, seed)
 
     return DimensionReductionForest.init(forest)
-
-
-def permuted_dimension_reduction_forest(np.ndarray[np.double_t, ndim=2] X,
-                                        np.ndarray[np.double_t, ndim=1] y,
-                                        unsigned int feature_id,
-                                        int num_trees=50,
-                                        int max_features=-1,
-                                        int num_slices=10,
-                                        int max_depth=-1,
-                                        int min_samples_leaf=2,
-                                        bool oob_error=False,
-                                        int n_jobs=-1,
-                                        int seed=42):
-    cdef mat X_mat = to_arma_mat(X)
-    cdef vec y_vec = to_arma_vec(y)
-    cdef shared_ptr[RandomForest] forest
-
-    forest = train_permuted_random_forest(
-        X_mat, y_vec, feature_id, num_trees, max_features,
-        num_slices, max_depth, min_samples_leaf,
-        oob_error, n_jobs, seed)
-
-    return DimensionReductionForest.init(forest)

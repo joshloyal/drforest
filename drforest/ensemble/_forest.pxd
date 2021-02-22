@@ -36,16 +36,3 @@ cdef extern from "drforest.h" namespace "drforest" nogil:
                                                  bool oob_error,
                                                  int num_threads,
                                                  int seed)
-
-    shared_ptr[RandomForest] train_permuted_random_forest(
-        mat& X,
-        vec& y,
-        unsigned int feature_id,
-        size_t num_trees,
-        int max_features,
-        size_t num_slices,
-        int max_depth,
-        size_t min_samples_leaf,
-        bool oob_error,
-        int num_threads,
-        int seed)
