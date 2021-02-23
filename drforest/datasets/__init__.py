@@ -6,3 +6,4 @@ from drforest.datasets.fishcatch import *
 from drforest.datasets.bodyfat import *
 from drforest.datasets.synthetic import *
 from drforest.datasets.openml import *
+from drforest.datasets.beijing import *
