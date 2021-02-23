@@ -94,8 +94,13 @@ def get_sources():
         for root, dirs, src_files in os.walk(source_path):
             for name in src_files:
                 path = os.path.join(root, name)
-                if path.endswith(".cpp"):
-                    files.append(path)
+                if os.path.isfile(path) and path.endswith(".cpp"):
+                    print(os.path.relpath(path))
+                    files.append(os.path.relpath(path))
+        #for name in os.listdir(source_path):
+        #    path = os.path.join(source_path, name)
+        #    if os.path.isfile(path) and path.endswith(".cpp"):
+        #        files.append(os.path.relpath(path))
 
     return files
 
@@ -214,7 +219,12 @@ def setup_package():
             long_description=LONG_DESCRIPTION,
             zip_safe=False,
             classifiers=CLASSIFIERS,
-            package_data={'': [ '*.pyx', '*.pxd']},
+            package_data={
+                '': [
+                    'drforest' + os.path.sep + '*.pyx',
+                    'drforest' + os.path.sep + '*.pxd'
+                ]
+            },
             include_package_data=True,
             packages=find_packages(),
             install_requires=INSTALL_REQUIRES,

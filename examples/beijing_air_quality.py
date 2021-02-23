@@ -7,6 +7,12 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble._forest import (
+    _get_n_samples_bootstrap, _generate_unsampled_indices)
+from sklearn.metrics import mean_squared_error
+from sklearn.inspection import permutation_importance
+
 from drforest.datasets import load_beijing
 from drforest.ensemble import DimensionReductionForestRegressor
 from drforest.plots import plot_local_importance
@@ -15,6 +21,32 @@ from drforest.plots import plot_local_importance
 OUT_DIR = 'beijing_results'
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
+
+
+def get_unsampled_indices(tree, n_samples):
+    n_samples_bootstrap = _get_n_samples_bootstrap(n_samples, n_samples)
+    return _generate_unsampled_indices(
+        tree.random_state, n_samples, n_samples_bootstrap)
+
+
+def oob_mse(rf, X_train, y_train):
+    n_samples = X_train.shape[0]
+    oob_preds = np.zeros(n_samples)
+    n_preds = np.zeros(n_samples)
+    for tree in rf.estimators_:
+        unsampled_indices = get_unsampled_indices(tree, n_samples)
+        oob_preds[unsampled_indices] += tree.predict(
+            X_train[unsampled_indices, :])
+        n_preds[unsampled_indices] += 1
+
+    if np.any(n_preds == 0):
+        n_preds[n_preds == 0] = 1
+
+    oob_preds /= n_preds
+
+    return mean_squared_error(y_train, oob_preds)
+
+
 
 # load data
 data = load_beijing()
@@ -72,7 +104,6 @@ min_sample_leaf = min_sample_leaves[np.argmin(errors)]
 print('min_sample_leaf = ', min_sample_leaf)
 
 # re-train on full dataset
-min_sample_leaf = 3
 drforest = DimensionReductionForestRegressor(
     n_estimators=500,
     min_samples_leaf=min_sample_leaf,
@@ -132,3 +163,42 @@ ax.set_ylabel('LSE Loadings')
 
 fig.savefig(os.path.join(OUT_DIR, 'lsvi_month.png'), dpi=300,
             bbox_inches='tight')
+
+
+# Also include the variable importance of a random forest
+errors = np.zeros(3)
+forests = []
+min_sample_leaves = [3, 5, 10]
+for i, min_samples_leaf in enumerate(min_sample_leaves):
+    forest = RandomForestRegressor(n_estimators=500,
+                                   min_samples_leaf=min_samples_leaf,
+                                   max_features=None,
+                                   random_state=42,
+                                   n_jobs=-1)
+    forest.fit(X_train, y_train)
+    errors[i] = np.mean((y_test -  forest.predict(X_test)) ** 2)
+    forests.append(forest)
+
+min_sample_leaf = min_sample_leaves[np.argmin(errors)]
+forest = RandomForestRegressor(
+    n_estimators=500,
+    min_samples_leaf=min_sample_leaf,
+    random_state=42,
+    max_features=None,
+    n_jobs=-1)
+forest.fit(X_std, y)
+
+forest_imp = permutation_importance(
+    forest, X_std, y, scoring=oob_mse, n_jobs=-1,
+    random_state=42)['importances_mean']
+forest_imp /= np.sum(forest_imp)
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+order = np.argsort(forest_imp)
+ax.barh(y=np.arange(5), width=forest_imp[order], color='gray',
+        tick_label=np.asarray(cols)[order], height=0.5)
+ax.set_xlabel('Variable Importance')
+
+fig.savefig(os.path.join(OUT_DIR, 'rf_airquality_imp.png'),
+           dpi=300, bbox_inches='tight')
