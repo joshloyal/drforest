@@ -77,10 +77,9 @@ forest = RandomForestRegressor(n_estimators=500,
                                n_jobs=-1, max_features=None,
                                oob_score=True,
                                random_state=42).fit(X, y)
-#forest_imp = forest.feature_importances_
+
 forest_imp = permutation_importance(
     forest, X, y, scoring=oob_mse, n_jobs=-1, random_state=42)['importances_mean']
-
 forest_imp /= np.sum(forest_imp)
 
 fig, ax = plt.subplots(figsize=(18, 6), ncols=4)
