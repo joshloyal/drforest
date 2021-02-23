@@ -6,8 +6,16 @@
 
 import numpy as np
 
-from sklearn.metrics.pairwise import pairwise_kernels, pairwise_distances
 from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.metrics.pairwise import pairwise_kernels, pairwise_distances
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from ..dimension_reduction import SlicedInverseRegression
+from ..dimension_reduction import SlicedAverageVarianceEstimation
+
+
+__all__ = ['KernelRegression', 'fit_kernel_smoother_silverman']
 
 
 def bw_silverman(x):
@@ -24,7 +32,6 @@ def epanechnikov_kernel(X, Y=None, bandwidth=1.0):
     K[dist > 1] = 0.0
 
     return K
-
 
 
 class KernelRegression(BaseEstimator, RegressorMixin):
@@ -129,3 +136,30 @@ class KernelRegression(BaseEstimator, RegressorMixin):
             mse[i] = ((y_pred - self.y) ** 2).mean()
 
         return gamma_values[np.nanargmin(mse)]
+
+
+def fit_kernel_smoother_silverman(X, y, feature_type='raw',
+                                  n_gammas='silverman', kernel='rbf',
+                                  random_state=123):
+
+    if feature_type == 'sir':
+        kernel_smoother = Pipeline([
+            ('scaler', StandardScaler()),
+            ('sir', SlicedInverseRegression(n_directions=None)),
+            ('ksmooth', KernelRegression(kernel=kernel, gamma='silverman'))
+        ])
+    elif feature_type == 'save':
+        kernel_smoother = Pipeline([
+            ('scaler', StandardScaler()),
+            ('save', SlicedAverageVarianceEstimation(n_directions=None)),
+            ('ksmooth', KernelRegression(kernel=kernel, gamma='silverman'))
+        ])
+    else:
+        kernel_smoother = Pipeline([
+            ('scaler', StandardScaler()),
+            ('ksmooth', KernelRegression(kernel=kernel, gamma='silverman'))
+        ])
+
+
+    kernel_smoother.fit(X, y)
+    return kernel_smoother

@@ -83,7 +83,7 @@ def clean(path):
 
 
 def get_include():
-    source_path = os.path.join(HERE, 'src')
+    source_path = os.path.join(HERE, 'core/src')
     return source_path if os.path.exists(source_path) else ''
 
 
@@ -167,7 +167,7 @@ def copy_core():
     shutil.copytree("core/src", package_src)
 
 
-DISTNAME = 'Dimension Reduction Forests'
+DISTNAME = 'drforest'
 DESCRIPTION = 'Dimension Reduction Forests'
 with open('README.rst') as f:
     LONG_DESCRIPTION = f.read()
@@ -190,7 +190,7 @@ def setup_package():
 
         return clean(HERE)
 
-    copy_core()
+    #copy_core()
 
     cython_cov = 'CYTHON_COV' in os.environ
 

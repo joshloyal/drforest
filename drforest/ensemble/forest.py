@@ -228,8 +228,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         return self.forest_.apply(X, self.n_jobs)
 
-    def local_subspace_importances(self, X,  use_weights=False,
-                                   n_jobs=1, n_directions=1):
+    def local_subspace_importances(self, X, n_jobs=1, n_directions=1):
         check_is_fitted(self)
 
         # must be a 2d array (n_samples, n_features)
