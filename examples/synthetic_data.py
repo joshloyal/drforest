@@ -19,17 +19,18 @@ from drforest.dimension_reduction import SlicedAverageVarianceEstimation
 from drforest.kernel_regression import fit_kernel_smoother_silverman
 
 from drforest.datasets import (
-    make_mave_2, make_ma_models, make_lass, make_crosses)
+    make_simulation1, make_simulation2, make_simulation3, make_simulation4)
 
 
 DATASETS = {
     'friedman1': partial(make_friedman1, noise=1),
     'friedman2': partial(make_friedman2, noise=1),
     'friedman3': partial(make_friedman3, noise=1),
-    'xia': make_mave_2,
-    'ellipse': make_ma_models,
-    'lass': partial(make_lass, n_features=5, correlate_features=False, noise=1),
-    'crosses': partial(make_crosses, n_features=5, noise=1),
+    'simulation1': partial(
+        make_simulation1, n_features=5, correlate_features=False, noise=1),
+    'simulation2': partial(make_simulation2, n_features=4, noise=1),
+    'simulation3': make_simulation3,
+    'simulation4': make_simulation4,
 }
 
 

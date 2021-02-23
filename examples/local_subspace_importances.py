@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import autograd.numpy as anp
 import pandas as pd
@@ -17,6 +19,10 @@ n_features = 5
 n_points = 100
 signal_to_noise = 3
 n_iter = 50
+OUT_DIR = 'lsvi_results'
+
+if not os.path.exists(OUT_DIR):
+    os.mkdir(OUT_DIR)
 
 
 def run_lsvi_sim(dataset_name):
@@ -237,21 +243,24 @@ def run_lsvi_sim(dataset_name):
     print("Local SIR {:.3f} +/- {:.3f}".format(
         np.mean(local_sir_metrics[:, 1]), np.std(local_sir_metrics[:, 1])))
 
-    #data = pd.DataFrame({
-    #        'DRF' : drf_metrics[:, 0],
-    #        'DRF (max_features=5)' : drf_max_metrics[:, 0],
-    #        'Global SAVE': save_metrics[:, 0],
-    #        'Global SIR': sir_metrics[:, 0],
-    #        'Local SIR': local_sir_metrics[:, 0]})
-    #data.to_csv('results/{}_p{}_frob.csv'.format(dataset_name, n_features), index=False)
+    data = pd.DataFrame({
+            'DRF' : drf_metrics[:, 0],
+            'DRF (max_features=5)' : drf_max_metrics[:, 0],
+            'Global SAVE': save_metrics[:, 0],
+            'Global SIR': sir_metrics[:, 0],
+            'Local SIR': local_sir_metrics[:, 0]})
+    data.to_csv(os.path.join(OUT_DIR, '{}_p{}_frob.csv'.format(
+        dataset_name, n_features), index=False))
 
-    #data = pd.DataFrame({
-    #        'DRF' : drf_metrics[:, 1],
-    #        'DRF (max_features=5)' : drf_max_metrics[:, 1],
-    #        'Global SAVE': save_metrics[:, 1],
-    #        'Global SIR': sir_metrics[:, 1],
-    #        'Local SIR': local_sir_metrics[:, 1]})
-    #data.to_csv('results/{}_p{}_trcor.csv'.format(dataset_name, n_features), index=False)
+    data = pd.DataFrame({
+            'DRF' : drf_metrics[:, 1],
+            'DRF (max_features=5)' : drf_max_metrics[:, 1],
+            'Global SAVE': save_metrics[:, 1],
+            'Global SIR': sir_metrics[:, 1],
+            'Local SIR': local_sir_metrics[:, 1]})
+    data.to_csv(os.path.join(OUT_DIR, '{}_p{}_trcor.csv'.format(
+        dataset_name, n_features), index=False))
+
 
 if __name__ == '__main__':
     plac.call(run_lsvi_sim)
