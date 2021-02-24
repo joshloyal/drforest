@@ -104,7 +104,8 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         to the underlying c++ class and is not intended for general usage.
 
     estimators_ : list of DimensionReductionTree
-        The collection of fitted dimension reduction trees.
+        The collection of fitted dimension reduction trees. Please refer to
+        ``drforest.tree._tree.DimensionReductionTree``.
 
     feature_importances_ : ndarray of shape (n_features,)
         The permutation-based feature importance based on out-of-bag

@@ -42,6 +42,7 @@ NODE_DTYPE = np.dtype({
 
 
 cdef class DimensionReductionTree:
+    """Array-based representation of a binary dimension reduction tree."""
     def __init__(self, *args, **kwargs):
         raise TypeError("Cannot create instance from Python")
 

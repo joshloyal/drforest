@@ -9,15 +9,15 @@ __all__ = ['plot_local_importance', 'plot_variable_importance']
 
 def label(x, color, label):
     ax = plt.gca()
-    #ax.text(0, 0.2, label, fontweight="bold", color=color,
-    #        ha="left", va="center", transform=ax.transAxes)
     ax.text(0, 0.2, label, color='black', #fontweight="bold",
             ha="left", va="center", transform=ax.transAxes)
 
 
 
-def plot_variable_importance(importances, normalize=False, names=None,
-                             xlabel=None, title=None, figsize=(8, 6), ax=None):
+def plot_variable_importance(importances, plot_type='bar', normalize=False,
+                             names=None, xlabel=None, title=None,
+                             figsize=(8, 6), ax=None):
+    """Plot global variable importances."""
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -29,21 +29,32 @@ def plot_variable_importance(importances, normalize=False, names=None,
         importances = importances / np.sum(importances)
 
     # re-order from largets to smallest
-    indices = np.argsort(importances)
-
-    for k in range(n_features):
-        ax.hlines(y=k, xmin=0, xmax=importances[indices[k]],
-                  color='k', linewidth=2)
-        ax.plot(importances[indices[k]], k, 'o', color='k')
-    ax.axvline(x=0, ymin=0, ymax=1, color='k', linestyle='--')
-
+    order = np.argsort(importances)
     if names is None:
-        names = ['Feature {}'.format(i + 1) for i in indices]
+        names = ['Feature {}'.format(i + 1) for i in order]
     else:
-        names = names[indices]
+        names = names[order]
 
-    ax.set_yticks(range(n_features))
-    ax.set_yticklabels(names)
+    margin = 0.1 if plot_type == 'lollipop' else 0.0
+    ax.set_xlim(0, importances.max() + margin)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    if plot_type == 'bar':
+        ax.barh(y=np.arange(n_features), width=importances[order],
+                color='gray', tick_label=names, height=0.5)
+    elif plot_type == 'lollipop':
+        for k in range(n_features):
+            ax.hlines(y=k, xmin=0, xmax=importances[order[k]],
+                      color='k', linewidth=2)
+            ax.plot(importances[order[k]], k, 'o', color='k')
+        ax.axvline(x=0, ymin=0, ymax=1, color='k', linestyle='--')
+
+
+        ax.set_yticks(range(n_features))
+        ax.set_yticklabels(names)
+    else:
+        raise ValueError(
+            "Unrecognized plot_type. Should be 'bar' or 'lollipop'")
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
@@ -58,6 +69,7 @@ def plot_variable_importance(importances, normalize=False, names=None,
 
 def plot_local_importance(directions, importances=None, feature_names=None,
                           figsize=(10, 6), color='0.3', bins=30):
+    """Plot marginal distribution of local subspace variable importances."""
     n_samples, n_features = directions.shape
 
     sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0),
