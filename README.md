@@ -7,14 +7,8 @@
 
 *Author: [Joshua D. Loyal](https://joshloyal.github.io/)*
 
-This package provides an interface for learning and inference in latent
-space models for dynamic networks. Inference is performed using
-blocked Metropolis-Hastings within Gibbs sampling.
-
-The primary method implemented in this package is the hierarchical Dirichlet
-process latent position cluster model (HDP-LPCM) described in
-"A Bayesian nonparametric latent space approach to modeling evolving communities in
-dynamic networks" [[arXiv:2003.07404](https://arxiv.org/abs/2003.07404)].
+This package provides an interface for dimension reduction forests described in
+"Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
 
 BibTeX reference to cite, if you use this package:
 <!--```bibtex
@@ -58,13 +52,13 @@ Background
 
 Simulation Studies and Real-Data Applications
 ---------------------------------------------
-This package includes the simulation studies and real-data applications found in Loyal and Chen (2020)<sup>[[6]](#References)</sup>:
+This package includes the simulation studies and real-data applications found in Loyal et al. (2021)<sup>[[6]](#References)</sup>:
 
-* A synthetic dynamic network with a time-homogeneous community structure: ([here](/examples/homogeneous_simulation.py)).
-* A synthetic dynamic network with a time-inhomogeneous community structure: ([here](/examples/inhomogeneous_simulation.py)).
-* Sampson's monastery network: ([here](/examples/sampson_monks.py)).
-* A dynamic network constructed from international military alliances during the first three decades of the Cold War (1950 - 1979): ([here](/examples/military_alliances.py)).
-* A dynamic network constructed from character interactions in the first four seasons of the Game of Thrones television series: ([here](/examples/GoT.py)).
+* Simple example of local variable importance on a synthetic dataset: ([here](/examples/random_forest_importances.py)).
+* Comparison with other methods on synthetic data: ([here](/examples/synthetic_data.py)).
+* Performance of local subspace variable importance on synthetic data: ([here](/examples/local_subspace_importances.py)).
+* Comparison with other methods on real regression problems: ([here](/examples/real_data.py)).
+* Application to understanding meteorological factors on pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
 
 We also provide a few [jupyter notebooks](/notebooks) that demonstrate the use of this package.
 
