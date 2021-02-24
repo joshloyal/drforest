@@ -120,6 +120,13 @@ cdef class DimensionReductionTree:
 
         return to_uint_ndarray(out)
 
+    def generate_oob_indices(self):
+        cdef uvec out
+
+        out = deref(self.tree).generate_oob_indices(True)
+
+        return to_1d_uint_ndarray(out)
+
     def estimate_sufficient_dimensions(self,
                                        np.ndarray[np.double_t, ndim=2] X,
                                        int algorithm=0):

@@ -8,45 +8,16 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble._forest import (
-    _get_n_samples_bootstrap, _generate_unsampled_indices)
-from sklearn.metrics import mean_squared_error
-from sklearn.inspection import permutation_importance
 
 from drforest.datasets import load_beijing
 from drforest.ensemble import DimensionReductionForestRegressor
+from drforest.ensemble import permutation_importance
 from drforest.plots import plot_local_importance
 
 
 OUT_DIR = 'beijing_results'
 if not os.path.exists(OUT_DIR):
     os.mkdir(OUT_DIR)
-
-
-def get_unsampled_indices(tree, n_samples):
-    n_samples_bootstrap = _get_n_samples_bootstrap(n_samples, n_samples)
-    return _generate_unsampled_indices(
-        tree.random_state, n_samples, n_samples_bootstrap)
-
-
-def oob_mse(rf, X_train, y_train):
-    n_samples = X_train.shape[0]
-    oob_preds = np.zeros(n_samples)
-    n_preds = np.zeros(n_samples)
-    for tree in rf.estimators_:
-        unsampled_indices = get_unsampled_indices(tree, n_samples)
-        oob_preds[unsampled_indices] += tree.predict(
-            X_train[unsampled_indices, :])
-        n_preds[unsampled_indices] += 1
-
-    if np.any(n_preds == 0):
-        n_preds[n_preds == 0] = 1
-
-    oob_preds /= n_preds
-
-    return mean_squared_error(y_train, oob_preds)
-
-
 
 # load data
 data = load_beijing()
@@ -109,10 +80,23 @@ drforest = DimensionReductionForestRegressor(
     min_samples_leaf=min_sample_leaf,
     random_state=42,
     store_X_y=True,
+    oob_mse=True,
     n_jobs=-1)
 drforest.fit(X_std, y)
 r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
 print('R2 = ', r_sq)
+
+# global permutation importance
+fig, ax = plt.subplots(figsize=(12, 6))
+
+forest_imp = drforest.feature_importances_
+order = np.argsort(forest_imp)
+ax.barh(y=np.arange(5), width=forest_imp[order], color='gray',
+        tick_label=np.asarray(cols)[order], height=0.5)
+ax.set_xlabel('Variable Importance')
+
+fig.savefig(os.path.join(OUT_DIR, 'drf_airquality_imp.png'),
+           dpi=300, bbox_inches='tight')
 
 # extract local subspace variable importances
 importances = drforest.local_subspace_importances(X_std, n_jobs=-1)
@@ -188,9 +172,7 @@ forest = RandomForestRegressor(
     n_jobs=-1)
 forest.fit(X_std, y)
 
-forest_imp = permutation_importance(
-    forest, X_std, y, scoring=oob_mse, n_jobs=-1,
-    random_state=42)['importances_mean']
+forest_imp = permutation_importance(forest, X_std, y, random_state=42)
 forest_imp /= np.sum(forest_imp)
 
 fig, ax = plt.subplots(figsize=(12, 6))
