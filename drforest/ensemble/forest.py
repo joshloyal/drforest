@@ -33,18 +33,6 @@ def local_direction(x0, X_train, weights, n_directions=1):
     return eigvec[:, :n_directions]
 
 
-def oob_mean_squared_error(forest, X_train, y_train):
-    """Difference in OOB MSE estimates averaged over the entire forest."""
-    n_samples = X_train.shape[0]
-    oob_mse = 0.
-    for tree in forest.estimators_:
-        oob = tree.generate_oob_indices()
-        oob_mse += mean_squared_error(
-            y_train[oob], tree.predict(X_train[oob, :]))
-
-    return oob_mse / forest.n_estimators
-
-
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     """Dimension Reduction Forest Regressor.
 
