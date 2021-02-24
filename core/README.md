@@ -13,5 +13,3 @@ To run the tests
 ```bash
 ./drforest
 ```
-
-# Code Structure
