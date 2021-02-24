@@ -3,7 +3,7 @@
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/joshloyal/dynetlsm)](https://ci.appveyor.com/project/joshloyal/dynetlsm/history)
 [![PyPI Latest Release](https://img.shields.io/pypi/v/dynetlsm)](https://pypi.org/project/dynetlsm/)-->
 
-# Dimension Reduction Forests: Local Variable Importances using Structured Random Forests
+# Dimension Reduction Forests
 
 *Author: [Joshua D. Loyal](https://joshloyal.github.io/)*
 
@@ -42,7 +42,7 @@ pip install -U drforest
 If you prefer, you can clone the repository and run the setup.py file. Use the following commands to get the copy from GitHub and install all the dependencies:
 
 ```
-git clone https://github.com/joshloyal/dynetlsm.git
+git clone https://github.com/joshloyal/drforest.git
 cd drforest
 pip install .
 ```
