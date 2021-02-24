@@ -97,10 +97,6 @@ def get_sources():
                 if os.path.isfile(path) and path.endswith(".cpp"):
                     print(os.path.relpath(path))
                     files.append(os.path.relpath(path))
-        #for name in os.listdir(source_path):
-        #    path = os.path.join(source_path, name)
-        #    if os.path.isfile(path) and path.endswith(".cpp"):
-        #        files.append(os.path.relpath(path))
 
     return files
 

@@ -5,7 +5,7 @@ import numpy as np
 
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator, RegressorMixin
-from sklearn.metrics import pairwise_distances
+from sklearn.metrics import pairwise_distances, mean_squared_error
 from sklearn.utils import check_X_y, check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
@@ -79,6 +79,9 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         point at any depth will only be considered if it leaves at least
         ``min_samples_leaf`` training samples in each leaf and right branches.
 
+    oob_mse : bool, optional (default=False)
+        Whether to use out-of-bag samples to estimate the MSE of unseen data.
+
     store_X_y : bool, optional(default=False)
         Whether to store the training data X, y. This is required for
         calculating the random forest kernel.
@@ -97,6 +100,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  max_features="auto",
                  min_samples_leaf=3,
+                 oob_mse=False,
                  store_X_y=False,
                  random_state=42,
                  n_jobs=1):
@@ -114,6 +118,16 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         check_is_fitted(self, 'forest_')
 
         return self.forest_.estimators_
+
+    @property
+    def oob_predictions_(self):
+        check_is_fitted(self, 'forest_')
+
+        if not self.oob_mse:
+            raise ValueError('OOB predictions were not calculated. '
+                             'Set oob_mse=True during initialization.')
+
+        return self.forest_.oob_predictions
 
     def fit(self, X, y, sample_weight=None):
         n_samples, n_features = X.shape
@@ -170,8 +184,11 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
             num_slices=self.n_slices,
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
-            oob_error=False,
+            oob_error=self.oob_mse,
             n_jobs=self.n_jobs, seed=self.random_state)
+
+        if self.oob_mse:
+            self.oob_mse_ = mean_squared_error(y, self.oob_predicitons_)
 
         # save training data for kernel estimates
         if self.store_X_y:
