@@ -37,12 +37,12 @@ forest = DimensionReductionForestRegressor(
 
 x0 = np.zeros(n_features)
 x0[:2] = np.array([-1.5, 1.5])
-local_direc_x0 = forest.local_subspace_importances(x0)
+local_direc_x0 = forest.local_subspace_importance(x0)
 local_direc_x0 *= np.sign(local_direc_x0[0])
 
 x1 = np.zeros(n_features)
 x1[:2] = [0.5, -0.5]
-local_direc_x1 = forest.local_subspace_importances(x1)
+local_direc_x1 = forest.local_subspace_importance(x1)
 local_direc_x1 *= np.sign(local_direc_x1[0])
 
 forest = RandomForestRegressor(n_estimators=500,

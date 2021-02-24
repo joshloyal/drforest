@@ -16,10 +16,12 @@ __all__ = ['DimensionReductionForestRegressor']
 
 
 def leaf_node_kernel(X_leaves, Y_leaves=None):
+    """Random forest kernel function."""
     return 1 - pairwise_distances(X_leaves, Y=Y_leaves, metric='hamming')
 
 
 def local_direction(x0, X_train, weights, n_directions=1):
+    """Calculate the local subspace variable importance at x0."""
     # filter for data points with non-zero weights
     nonzero = weights != 0
     X_nonzero = X_train[nonzero] - x0
@@ -36,24 +38,21 @@ def local_direction(x0, X_train, weights, n_directions=1):
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     """Dimension Reduction Forest Regressor.
 
-    A dimension reduction forest is a random forest that uses
-    sufficient dimension reduction to estimate the optimal linear
-    combinations splits when building a regression tree.
+    A dimension reduction forest is a random forest [1] composed of dimension
+    reduction trees that use sufficient dimension reduction (SDR) techniques
+    to approximate a locally adaptive kernel. Furthermore, they can leverage
+    this adaptivity to estimate a local variable importance measure known as
+    local subspace variable importance.
 
-    Currently the dimension reduction forest supports both
-    Sliced Inverse Regression (SIR) and
-    Sliced Average Variance Estimation (SAVE) as estimators for
-    linear combination splits. The splitting criterion is reduction
-    in mean squared error (variance) at each node.
+    Dimension reduction trees use a combinatoin of Sliced Inverse Regression
+    (SIR) [2] and Sliced Average Variance Estimation (SAVE) [3] to estimate a
+    linear combination splitting rule. The splitting criterion is
+    mean squared error (variance) at each node.
 
     Parameters
     ----------
     n_estimators : int, optional (default=500)
         The number of trees in the forest.
-
-    n_slices : int, optional (default=10)
-        The number of slices used when calculating the inverse regression
-        curve. Truncated to at most the number of unique values of ``y``.
 
     max_depth : int or None, optional (default=None)
         The maximum depth of the tree. If None, then nodes are expanded
@@ -74,10 +73,14 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         - If "log2", then `max_features=int(log2(n_features + 1))`.
         - If None, then `max_features=n_features (same as "auto").
 
-    min_samples_leaf : int, float, optional (default=1)
+    min_samples_leaf : int, float, optional (default=3)
         The minimum number of samples required to be a leaf node. A split
         point at any depth will only be considered if it leaves at least
         ``min_samples_leaf`` training samples in each leaf and right branches.
+
+    n_slices : int, optional (default=10)
+        The number of slices used when calculating the inverse regression
+        curve. Truncated to at most the number of unique values of ``y``.
 
     oob_mse : bool, optional (default=True)
         Whether to use out-of-bag samples to estimate the MSE of unseen data.
@@ -93,22 +96,76 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     n_jobs: int, optional(default=1)
         The number of jobs to run in parallel. ``fit``, ``predict`, and
         ``apply`` are all parallelized over the trees.
+
+    Attributes
+    ----------
+    forest_ : DimensionReductionForest instance
+        The underlying DimensionReductionForest object. This is a wrapper
+        to the underlying c++ class and is not intended for general usage.
+
+    estimators_ : list of DimensionReductionTree
+        The collection of fitted dimension reduction trees.
+
+    feature_importances_ : ndarray of shape (n_features,)
+        The permutation-based feature importance based on out-of-bag
+        predictions.
+
+    oob_mse_ : float
+        Mean squared error of the training dataset obtained using an
+        out-of-bag estimate. The attribute exists only when `oob_mse` is
+        True.
+
+    oob_prediction_ : ndarray of shape (n_samples,)
+        Prediction computed with out-of-bag estimates on the training set.
+        This attribute is  only computable when ``oob_score` is True.
+
+    X_fit_ : ndarray of shape (n_samples, n_features)
+        The full training features. This attribute exists only when
+        ``store_X_y`` is True.
+
+    y_fit_ : ndarray of shape (n_features,)
+        The full training response. This attribute exists only when
+        ``store_X_y`` is True.
+
+    Examples
+    --------
+
+    >>> from drforest.datasets import make_cubic
+    >>> from drforest.ensemble import DimensionReductionForestRegressor
+    >>> drf = DimensionReductionForestRegressor()
+    >>> drf.fit(X, y)
+    >>> print(drf.predict())
+    >>> print(drf.local_subspace_importance())
+
+    References
+    ----------
+
+    [1] Breiman (2001)
+        "Random Forests", Machine Learning, 45(1), 5-32.
+
+    [2] Li, K C. (1991)
+        "Sliced Inverse Regression for Dimension Reduction (with discussion)",
+        Journal of the American Statistical Association, 86, 316-342.
+
+    [3] Shao, Y, Cook, RD and Weisberg, S (2007).
+        "Marginal Tests with Sliced Average Variance Estimation",
+        Biometrika, 94, 285-296.
     """
     def __init__(self,
                  n_estimators=500,
-                 n_slices=10,
                  max_depth=None,
                  max_features="auto",
                  min_samples_leaf=3,
+                 n_slices=10,
                  oob_mse=True,
                  store_X_y=True,
                  random_state=42,
                  n_jobs=1):
         self.n_estimators = n_estimators
-        self.n_slices = n_slices
         self.max_features = max_features
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
+        self.n_slices = n_slices
         self.oob_mse = oob_mse
         self.random_state = random_state
         self.store_X_y = store_X_y
@@ -116,12 +173,26 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
     @property
     def estimators_(self):
+        """The collection of fitted dimension reduction trees.
+
+        Returns
+        -------
+        estimators_ : list of length n_estimators
+            The collection of fitted dimension reduction trees.
+        """
         check_is_fitted(self, 'forest_')
 
         return self.forest_.estimators_
 
     @property
-    def oob_predictions_(self):
+    def oob_prediction_(self):
+        """Predictions computed with out-of-bag estimates on the training set.
+
+        Returns
+        -------
+        oob_predictions_ : ndarray of shape (n_samples,)
+           Prediction computed with out-of-bag estimate on the training set.
+        """
         check_is_fitted(self, 'forest_')
 
         if not self.oob_mse:
@@ -132,7 +203,16 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
     @property
     def feature_importances_(self):
-        """Out-of-bag permutation-based feature importances."""
+        """Out-of-bag permutation-based feature importances.
+
+        The higher, the more important the feature. The importances are
+        normalized to sum to one.
+
+        Returns
+        -------
+        feature_importances_ : ndarray of shape (n_features,)
+            The values of this array sum to 1.
+        """
         check_is_fitted(self, 'forest_')
 
         # FIXME: currently does not support multiprocessing, since objects
@@ -143,6 +223,22 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         return all_importances / np.sum(all_importances)
 
     def fit(self, X, y, sample_weight=None):
+        """Build a dimension reduction forest from the training set (X, y)
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            Training data, where n_samples is the number of samples
+            and n_features is the number of features.
+
+        y : array-like, shape (n_samples,)
+            The target values.
+
+        Returns
+        -------
+        self : object
+            Returns the instance itself.
+        """
         n_samples, n_features = X.shape
 
         # check input arrays
@@ -201,7 +297,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
             n_jobs=self.n_jobs, seed=self.random_state)
 
         if self.oob_mse:
-            self.oob_mse_ = mean_squared_error(y, self.oob_predictions_)
+            self.oob_mse_ = mean_squared_error(y, self.oob_prediction_)
 
         # save training data for kernel estimates
         if self.store_X_y:
@@ -210,16 +306,25 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         return self
 
-    def _compute_kernel(self, X, Y=None):
-        if not self.store_X_y:
-            raise ValueError("Cannot compute the forest kernel. Set "
-                             "`store_X_y=True` and re-fit the model.")
-
-        X_leaves = self.apply(X)
-        Y_leaves = Y if Y is None else self.apply(Y)
-        return leaf_node_kernel(X_leaves, Y_leaves)
-
     def __call__(self, X, Y=None):
+        """Compute the induced random forest kernel.
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples_a, n_features)
+            A feature array.
+        Y : ndarray of shape (n_samples_b, n_features)
+            A second feature array.
+
+        Returns
+        -------
+        K : ndarray of shape (n_samples_a, n_samples_a) or \
+                (n_samples_a, n_samples_b)
+            The random forest kernel matrix K, such that K_{i, j} is the
+            kernel value between the ith and jth vectors of the given matrix X, if
+            Y is None. If Y is not None, then K_{i, j} is the distance between the
+            ith vector from X and the jth vector from Y.
+        """
         check_is_fitted(self)
 
         X = np.atleast_2d(X)
@@ -233,11 +338,37 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         if Y is not None:
             Y = check_array(Y, dtype='float64')
         else:
+            if not self.store_X_y:
+                raise ValueError("Cannot compute the forest kernel. Set "
+                                 "`store_X_y=True` and re-fit the model.")
             Y = self.X_fit_
 
-        return self._compute_kernel(X, Y)
+        X_leaves = self.apply(X)
+        Y_leaves = Y if Y is None else self.apply(Y)
+        return leaf_node_kernel(X_leaves, Y_leaves)
 
     def predict(self, X, pred_type='average'):
+        """Predict regression target for X.
+
+        The predicted regression target of an input sample is computed as the
+        mean predicted regression targets of the trees in the forest or as a
+        Nadarya-Watson kernel estimate using the induced random forest kernel.
+
+        Parameters
+        ----------
+        X : array-like, shape (n_samples, n_features)
+            The input samples.
+
+        pred_type : string in {'average', 'kernel'}
+            The type of predictions. The averge over trees in the forest when
+            pred_type is 'average', and a kernel estimate when pred_type is
+            'kernel'.
+
+        Returns
+        -------
+        y : ndarray of shape (n_samples,)
+            The predicted values.
+        """
         check_is_fitted(self)
         X = check_array(X, dtype='float64')
 
@@ -253,12 +384,43 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         return np.dot(K, self.y_fit_) / np.sum(K, axis=1)
 
     def apply(self, X):
+        """Apply trees in the forest to X, return leaf indices.
+
+        Paramters
+        ---------
+        X : ndarray of shape (n_samples, n_features)
+            The input samples.
+
+        Returns
+        -------
+        X_leaves : ndarray of shape (n_samples, n_estimators)
+            For each datapoint x in X and for each tree in the forest, return
+            the index of the leaf x ends up in.
+        """
         check_is_fitted(self)
         X = check_array(X, dtype='float64')
 
         return self.forest_.apply(X, self.n_jobs)
 
-    def local_subspace_importances(self, X, n_jobs=1, n_directions=1):
+    def local_subspace_importance(self, X, n_jobs=1):
+        """Calculate the local subspace variable importance at each point in X.
+
+        Parameters
+        ----------
+        X : ndarray of shape (n_samples, n_features)
+            The input samples.
+
+        n_jobs: int, optional(default=1)
+            The number of jobs to run in parallel. The calculation is
+            parallelized over the samples.
+
+        Returns
+        -------
+        local_importances : ndarray of shape (n_samples, n_features)
+            The local subspace variable importance (LSVI) at each point x in X.
+            An LSVI is interpreted as the one-dimensional subpsace that most
+            influences teh regression function at x.
+        """
         check_is_fitted(self)
 
         # must be a 2d array (n_samples, n_features)
@@ -270,7 +432,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         directions = Parallel(n_jobs=n_jobs)(
             delayed(local_direction)(
-            X[i], self.X_fit_, weights[i], n_directions) for
+            X[i], self.X_fit_, weights[i]) for
             i in range(X.shape[0]))
 
         return np.squeeze(np.asarray(directions))

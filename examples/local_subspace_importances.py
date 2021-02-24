@@ -110,14 +110,14 @@ def run_lsvi_sim(dataset_name):
         indices = rng.choice(np.arange(n_samples), replace=False, size=n_points)
         pred_dirs = []
         for forest in forests:
-            pred_dirs.append(forest.local_subspace_importances(
+            pred_dirs.append(forest.local_subspace_importance(
                 X[indices], n_jobs=-1))
 
         pred_dirs_max = []
         if n_features > 5:
             for forest in forest_max:
                 pred_dirs_max.append(
-                    forest.local_subspace_importances(
+                    forest.local_subspace_importance(
                         X[indices], n_jobs=-1))
         else:
             pred_dirs_max = pred_dirs
