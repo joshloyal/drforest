@@ -19,8 +19,9 @@ dynamic networks" [[arXiv:2003.07404](https://arxiv.org/abs/2003.07404)].
 BibTeX reference to cite, if you use this package:
 <!--```bibtex
 @article{loyal2020hdplpcm,
-}-->
+}
 ```
+--->
 
 Dependencies
 ------------
