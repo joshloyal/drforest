@@ -38,11 +38,11 @@ def local_direction(x0, X_train, weights, n_directions=1):
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     """Dimension Reduction Forest Regressor.
 
-    A dimension reduction forest is a random forest [1] composed of dimension
-    reduction trees that use sufficient dimension reduction (SDR) techniques
-    to approximate a locally adaptive kernel. Furthermore, they can leverage
-    this adaptivity to estimate a local variable importance measure known as
-    local subspace variable importance.
+    A dimension reduction forest (DRF) is a random forest [1] composed of
+    dimension reduction trees that use sufficient dimension reduction (SDR)
+    techniques to approximate a locally adaptive kernel. Furthermore, DRFs
+    leverage this adaptivity to estimate a local variable importance measure
+    known as local subspace variable importance (LSVI).
 
     Dimension reduction trees use a combinatoin of Sliced Inverse Regression
     (SIR) [2] and Sliced Average Variance Estimation (SAVE) [3] to estimate a
