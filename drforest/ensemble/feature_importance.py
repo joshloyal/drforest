@@ -51,7 +51,7 @@ def permutation_importance(forest, X, y, scale=False, random_state=None):
     importances_std = np.zeros(X.shape[1])
     for col_idx in range(X.shape[1]):
         perm_mse = calculate_permutation_mse(forest, X, y, col_idx, random_state)
-        tree_importances = np.mean(perm_mse - baseline_mse)
+        tree_importances = perm_mse - baseline_mse
         importances[col_idx] = np.mean(tree_importances)
         importances_std[col_idx] = np.std(tree_importances)
 
