@@ -3,7 +3,7 @@
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/joshloyal/dynetlsm)](https://ci.appveyor.com/project/joshloyal/dynetlsm/history)
 [![PyPI Latest Release](https://img.shields.io/pypi/v/dynetlsm)](https://pypi.org/project/dynetlsm/)-->
 
-# Dimension Reduction Forests
+# dimension reduction forests
 
 *Author: [Joshua D. Loyal](https://joshloyal.github.io/)*
 
