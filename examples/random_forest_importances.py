@@ -4,14 +4,11 @@ import seaborn as sns
 import pandas as pd
 
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.ensemble._forest import (
-    _get_n_samples_bootstrap, _generate_unsampled_indices)
-from sklearn.metrics import mean_squared_error
-from sklearn.inspection import permutation_importance
-
 
 from drforest.ensemble import DimensionReductionForestRegressor
+from drforest.ensemble import permutation_importance
 from drforest.plots import plot_local_importance
+
 
 plt.rc('font', family='serif')
 
@@ -19,30 +16,6 @@ n_samples = 2000
 n_features = 5
 
 rng = np.random.RandomState(1234)
-
-
-def get_unsampled_indices(tree, n_samples):
-    n_samples_bootstrap = _get_n_samples_bootstrap(n_samples, n_samples)
-    return _generate_unsampled_indices(
-        tree.random_state, n_samples, n_samples_bootstrap)
-
-
-def oob_mse(rf, X_train, y_train):
-    n_samples = X_train.shape[0]
-    oob_preds = np.zeros(n_samples)
-    n_preds = np.zeros(n_samples)
-    for tree in rf.estimators_:
-        unsampled_indices = get_unsampled_indices(tree, n_samples)
-        oob_preds[unsampled_indices] += tree.predict(
-            X_train[unsampled_indices, :])
-        n_preds[unsampled_indices] += 1
-
-    if np.any(n_preds == 0):
-        n_preds[n_preds == 0] = 1
-
-    oob_preds /= n_preds
-
-    return mean_squared_error(y_train, oob_preds)
 
 
 def func(X):
@@ -79,7 +52,7 @@ forest = RandomForestRegressor(n_estimators=500,
                                random_state=42).fit(X, y)
 
 forest_imp = permutation_importance(
-    forest, X, y, scoring=oob_mse, n_jobs=-1, random_state=42)['importances_mean']
+    forest, X, y, random_state=forest.random_state)
 forest_imp /= np.sum(forest_imp)
 
 fig, ax = plt.subplots(figsize=(18, 6), ncols=4)
@@ -129,5 +102,4 @@ ax[3].text(3, 0.8, '$\mathbf{x}_0 = (0.5, -0.5)$', fontsize=12)
 ax[3].set_ylim(-1, 1)
 
 plt.subplots_adjust(wspace=0.3, left=0.03, right=0.985)
-
 fig.savefig('local_svi.png', dpi=300, bbox_inches='tight')

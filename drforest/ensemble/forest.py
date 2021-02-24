@@ -10,7 +10,7 @@ from sklearn.utils import check_X_y, check_array, check_random_state
 from sklearn.utils.validation import check_is_fitted
 
 from ._forest import dimension_reduction_forest
-
+from .feature_importance import permutation_importance
 
 __all__ = ['DimensionReductionForestRegressor']
 
@@ -31,6 +31,18 @@ def local_direction(x0, X_train, weights, n_directions=1):
     eigval, eigvec = np.linalg.eigh(M)
 
     return eigvec[:, :n_directions]
+
+
+def oob_mean_squared_error(forest, X_train, y_train):
+    """Difference in OOB MSE estimates averaged over the entire forest."""
+    n_samples = X_train.shape[0]
+    oob_mse = 0.
+    for tree in forest.estimators_:
+        oob = tree.generate_oob_indices()
+        oob_mse += mean_squared_error(
+            y_train[oob], tree.predict(X_train[oob, :]))
+
+    return oob_mse / forest.n_estimators
 
 
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
@@ -79,10 +91,10 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         point at any depth will only be considered if it leaves at least
         ``min_samples_leaf`` training samples in each leaf and right branches.
 
-    oob_mse : bool, optional (default=False)
+    oob_mse : bool, optional (default=True)
         Whether to use out-of-bag samples to estimate the MSE of unseen data.
 
-    store_X_y : bool, optional(default=False)
+    store_X_y : bool, optional(default=True)
         Whether to store the training data X, y. This is required for
         calculating the random forest kernel.
 
@@ -100,8 +112,8 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  max_features="auto",
                  min_samples_leaf=3,
-                 oob_mse=False,
-                 store_X_y=False,
+                 oob_mse=True,
+                 store_X_y=True,
                  random_state=42,
                  n_jobs=1):
         self.n_estimators = n_estimators
@@ -109,6 +121,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         self.max_features = max_features
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
+        self.oob_mse = oob_mse
         self.random_state = random_state
         self.store_X_y = store_X_y
         self.n_jobs = n_jobs
@@ -128,6 +141,18 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                              'Set oob_mse=True during initialization.')
 
         return self.forest_.oob_predictions
+
+    @property
+    def feature_importances_(self):
+        """Out-of-bag permutation-based feature importances."""
+        check_is_fitted(self, 'forest_')
+
+        # FIXME: currently does not support multiprocessing, since objects
+        # are not serializable.
+        all_importances = permutation_importance(
+            self, self.X_fit_, self.y_fit_, random_state=self.random_state)
+
+        return all_importances / np.sum(all_importances)
 
     def fit(self, X, y, sample_weight=None):
         n_samples, n_features = X.shape
@@ -188,7 +213,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
             n_jobs=self.n_jobs, seed=self.random_state)
 
         if self.oob_mse:
-            self.oob_mse_ = mean_squared_error(y, self.oob_predicitons_)
+            self.oob_mse_ = mean_squared_error(y, self.oob_predictions_)
 
         # save training data for kernel estimates
         if self.store_X_y:
