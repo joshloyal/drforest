@@ -86,18 +86,6 @@ drforest.fit(X_std, y)
 r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
 print('R2 = ', r_sq)
 
-# global permutation importance
-fig, ax = plt.subplots(figsize=(12, 6))
-
-forest_imp = drforest.feature_importances_
-order = np.argsort(forest_imp)
-ax.barh(y=np.arange(5), width=forest_imp[order], color='gray',
-        tick_label=np.asarray(cols)[order], height=0.5)
-ax.set_xlabel('Variable Importance')
-
-fig.savefig(os.path.join(OUT_DIR, 'drf_airquality_imp.png'),
-           dpi=300, bbox_inches='tight')
-
 # extract local subspace variable importances
 importances = drforest.local_subspace_importances(X_std, n_jobs=-1)
 importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
@@ -172,15 +160,22 @@ forest = RandomForestRegressor(
     n_jobs=-1)
 forest.fit(X_std, y)
 
+
+# global permutation-based importance
+fig, ax = plt.subplots(figsize=(18, 6), ncols=2, sharex=True)
+
 forest_imp = permutation_importance(forest, X_std, y, random_state=42)
 forest_imp /= np.sum(forest_imp)
-
-fig, ax = plt.subplots(figsize=(12, 6))
-
 order = np.argsort(forest_imp)
-ax.barh(y=np.arange(5), width=forest_imp[order], color='gray',
+ax[0].barh(y=np.arange(5), width=forest_imp[order], color='gray',
         tick_label=np.asarray(cols)[order], height=0.5)
-ax.set_xlabel('Variable Importance')
+ax[0].set_xlabel('RF Variable Importance')
 
-fig.savefig(os.path.join(OUT_DIR, 'rf_airquality_imp.png'),
+forest_imp = drforest.feature_importances_
+order = np.argsort(forest_imp)
+ax[1].barh(y=np.arange(5), width=forest_imp[order], color='gray',
+        tick_label=np.asarray(cols)[order], height=0.5)
+ax[1].set_xlabel('DRF Variable Importance')
+
+fig.savefig(os.path.join(OUT_DIR, 'airquality_imp.png'),
            dpi=300, bbox_inches='tight')
