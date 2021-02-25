@@ -133,10 +133,13 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
     >>> from drforest.datasets import make_cubic
     >>> from drforest.ensemble import DimensionReductionForestRegressor
-    >>> drf = DimensionReductionForestRegressor()
+    >>> X, y = make_cubic(n_features=2, random_state=123)
+    >>> drf = DimensionReductionForestRegressor(n_estimators=10)
     >>> drf.fit(X, y)
-    >>> print(drf.predict())
-    >>> print(drf.local_subspace_importance())
+    >>> print(drf.predict([[-1, 1, 0]]))
+    array([0.15467771])
+    >>> print(drf.local_subspace_importance([[-1, 1, 0]]))
+    array([-0.70722344, -0.70577232, -0.04147822])
 
     References
     ----------
