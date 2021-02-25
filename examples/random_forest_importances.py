@@ -90,7 +90,7 @@ ax[2].set_title('Dimension Reduction Forest', fontsize=10)
 ax[2].axhline(0, color='black', linestyle='-', lw=1)
 ax[2].set_ylim(-1, 1)
 ax[2].set_xlabel('Variable')
-ax[2].text(3, 0.8, '$\mathbf{x}_0 = (-1.5, 1.5)$', fontsize=12)
+ax[2].text(2.5, 0.8, '$\mathbf{x}_0 = (-1.5, 1.5, 0, 0, 0)$', fontsize=12)
 
 color = ['tomato' if x > 0 else 'cornflowerblue' for x in local_direc_x1]
 ax[3].bar(np.arange(1, n_features + 1), local_direc_x1, color=color)
@@ -98,7 +98,7 @@ ax[3].set_title('Dimension Reduction Forest', fontsize=10)
 ax[3].set_xlabel('Variable')
 ax[3].invert_yaxis()
 ax[3].axhline(0, color='black', linestyle='-', lw=1)
-ax[3].text(3, 0.8, '$\mathbf{x}_0 = (0.5, -0.5)$', fontsize=12)
+ax[3].text(2.5, 0.8, '$\mathbf{x}_0 = (0.5, -0.5, 0, 0, 0)$', fontsize=12)
 ax[3].set_ylim(-1, 1)
 
 plt.subplots_adjust(wspace=0.3, left=0.03, right=0.985)
