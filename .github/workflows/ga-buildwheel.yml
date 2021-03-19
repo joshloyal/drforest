@@ -35,7 +35,7 @@ jobs:
       #    LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
 
       - name: Build wheels for Mac OS
-        run :
+        run: |
           brew install libomp
           python -m cibuildwheel --output-dir dist
         env:
