@@ -21,8 +21,7 @@ jobs:
       - name: Setup Clang Compilers
         if: runner.os == 'macOS'
         #run: xcode-select --install; brew install libomp; export CC=$(brew --prefix llvm)/bin/clang; export CXX=$(brew --prefix llvm)/bin/clang++
-        run: |
-          xcode-select --install
+        run: |-
           brew install libomp
           export CC=/usr/bin/clang
           export CXX=/usr/bin/clang++
