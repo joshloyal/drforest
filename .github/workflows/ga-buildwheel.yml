@@ -20,7 +20,7 @@ jobs:
 
       - name: Setup Clang Compilers
         if: runner.os == 'macOS'
-        run: brew install libomp; export CC=$(brew --prefix)/bin/clang; export CXX=$(brew --prefix)/bin/clang++
+        run: brew install llvm; brew install libomp; export CC=$(brew --prefix llvm)/bin/clang; export CXX=$(brew --prefix llvm)/bin/clang++
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
