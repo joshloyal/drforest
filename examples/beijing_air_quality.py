@@ -87,7 +87,7 @@ r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
 print('R2 = ', r_sq)
 
 # extract local subspace variable importances
-importances = drforest.local_subspace_importances(X_std, n_jobs=-1)
+importances = drforest.local_subspace_importance(X_std, n_jobs=-1)
 importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 
 # visualize marginal LSVI histograms
@@ -126,12 +126,12 @@ for p in range(4):
 tick_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 ax.set_xticks([i for i in range(0, 12, 2)])
-ax.set_xticklabels(tick_labels[::2])
+ax.set_xticklabels(tick_labels[::2], labelsize=16)
 ax.grid(axis='x')
 
 ax.legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=4, facecolor='w')
 ax.set_xlabel('Month')
-ax.set_ylabel('LSE Loadings')
+ax.set_ylabel('LSVI Loadings', fontsize=16)
 
 fig.savefig(os.path.join(OUT_DIR, 'lsvi_month.png'), dpi=300,
             bbox_inches='tight')

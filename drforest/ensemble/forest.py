@@ -26,6 +26,7 @@ def local_direction(x0, X_train, weights, n_directions=1):
     nonzero = weights != 0
     X_nonzero = X_train[nonzero] - x0
 
+    # calculate the local PCA (bandwidth) matrix
     w = weights[nonzero].reshape(-1, 1)
     X_nonzero -= (w * X_nonzero).sum(axis=0) / np.sum(w)
     M = np.dot(X_nonzero.T, X_nonzero * w) / np.sum(w)

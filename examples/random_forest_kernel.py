@@ -8,7 +8,7 @@ from drforest.datasets import make_simulation1
 from drforest.ensemble import DimensionReductionForestRegressor
 
 plt.rc('font', family='serif')
-
+fontsize = 17
 
 def func(x):
     r1 = x[0] - x[1]
@@ -59,7 +59,7 @@ axes[0].scatter(X[:, 0], X[:, 1],
             color='white',
             sizes=50 * np.sqrt(rf_kernel))
 axes[0].scatter(-1.5, 1.5, color='tomato', edgecolor='black', marker='P', s=50)
-axes[0].set_title("Random Forest", fontsize=12)
+axes[0].set_title("Random Forest", fontsize=fontsize)
 
 rf_kernel = 1 - pairwise_distances(
     forest.apply([[0.5, -0.5]]), forest.apply(X), metric='hamming')
@@ -74,7 +74,7 @@ axes[2].scatter(X[:, 0], X[:, 1],
             sizes=50 * np.sqrt(rf_kernel))
 axes[2].scatter(
     0.5, -0.5, color='tomato', edgecolor='black', marker='P', s=50)
-axes[2].set_title("Random Forest", fontsize=12)
+axes[2].set_title("Random Forest", fontsize=fontsize)
 
 
 dr_kernel = drforest([-1.5, 1.5]).ravel()
@@ -89,7 +89,7 @@ axes[1].scatter(X[:, 0], X[:, 1],
             sizes=50 * np.sqrt(dr_kernel))
 axes[1].scatter(
     -1.5, 1.5, color='tomato', edgecolor='black', marker='P', s=50)
-axes[1].set_title("Dimension Reduction Forest", fontsize=12)
+axes[1].set_title("Dimension Reduction Forest", fontsize=fontsize)
 
 dr_kernel = drforest([0.5, -0.5]).ravel()
 dr_kernel /= dr_kernel.sum()
@@ -102,9 +102,11 @@ axes[3].scatter(X[:, 0], X[:, 1],
             color='gray',
             sizes=50 * np.sqrt(dr_kernel))
 axes[3].scatter(0.5, -0.5, color='tomato', edgecolor='black', marker='P', s=50)
-axes[3].set_title("Dimension Reduction Forest", fontsize=12)
+axes[3].set_title("Dimension Reduction Forest", fontsize=fontsize)
 
+for ax in axes:
+    ax.tick_params(axis='x', labelsize=14)
+    ax.tick_params(axis='y', labelsize=14)
 
 plt.subplots_adjust(top=0.92, bottom=0.08, left=0.1, right=0.95, wspace=0.2)
-
-fig.savefig('kernel_comp.png', dpi=300, bbox_inches='tight')
+fig.savefig('kernel_comp.pdf', dpi=300, bbox_inches='tight')

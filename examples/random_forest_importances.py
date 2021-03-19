@@ -11,6 +11,7 @@ from drforest.plots import plot_local_importance
 
 
 plt.rc('font', family='serif')
+fontsize = 14
 
 n_samples = 2000
 n_features = 5
@@ -76,30 +77,31 @@ ax[0].annotate(r'(0.5, -0.5)', (0.5, -0.5), xytext=(0.6, -0.4), fontname='Sans',
 ax[0].set_aspect('equal')
 
 ax[1].bar(np.arange(1, n_features + 1), forest_imp, color='gray')
-ax[1].set_ylabel('Importance')
-ax[1].set_title('Random Forest', fontsize=10)
+ax[1].set_ylabel('Importance', fontsize=12)
+ax[1].set_title('Random Forest', fontsize=fontsize)
 ax[1].set_xlabel(None)
 ax[1].axhline(0, color='black', linestyle='-')
 ax[1].set_ylim(-1, 1)
 ax[1].set_xlabel('Variable')
-ax[1].text(3.5, 0.8, 'Global', fontsize=12)
+ax[1].text(3.5, 0.8, 'Global', fontsize=16)
 
 color = ['tomato' if x > 0 else 'cornflowerblue' for x in local_direc_x0]
 ax[2].bar(np.arange(1, n_features + 1), local_direc_x0, color=color)
-ax[2].set_title('Dimension Reduction Forest', fontsize=10)
+ax[2].set_title('Dimension Reduction Forest', fontsize=fontsize)
 ax[2].axhline(0, color='black', linestyle='-', lw=1)
 ax[2].set_ylim(-1, 1)
 ax[2].set_xlabel('Variable')
-ax[2].text(2.5, 0.8, '$\mathbf{x}_0 = (-1.5, 1.5, 0, 0, 0)$', fontsize=12)
+ax[2].text(2.5, 0.8, '$\mathbf{x}_0 = (-1.5, 1.5, 0, 0, 0)$', fontsize=10)
 
 color = ['tomato' if x > 0 else 'cornflowerblue' for x in local_direc_x1]
 ax[3].bar(np.arange(1, n_features + 1), local_direc_x1, color=color)
-ax[3].set_title('Dimension Reduction Forest', fontsize=10)
+ax[3].set_title('Dimension Reduction Forest', fontsize=fontsize)
 ax[3].set_xlabel('Variable')
 ax[3].invert_yaxis()
 ax[3].axhline(0, color='black', linestyle='-', lw=1)
-ax[3].text(2.5, 0.8, '$\mathbf{x}_0 = (0.5, -0.5, 0, 0, 0)$', fontsize=12)
+ax[3].text(2.5, 0.8, '$\mathbf{x}_0 = (0.5, -0.5, 0, 0, 0)$', fontsize=10)
 ax[3].set_ylim(-1, 1)
 
 plt.subplots_adjust(wspace=0.3, left=0.03, right=0.985)
-fig.savefig('local_svi.png', dpi=300, bbox_inches='tight')
+plt.show()
+fig.savefig('local_svi.pdf', dpi=300, bbox_inches='tight')
