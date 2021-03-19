@@ -7,6 +7,9 @@ import contextlib
 import subprocess
 import glob
 
+import setuptools_scm  # noqa: F401
+import toml  # noqa: F401
+
 from setuptools import setup, find_packages
 from setuptools import Extension
 
@@ -16,9 +19,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # armadillo includes
 ARMADILLO_INC = os.environ.get('ARMADILLO_INCLUDE')
 ARMADILLO_LIB = os.environ.get('ARMADILLO_LIB')
-
-# import ``__version__` from code base
-exec(open(os.path.join(HERE, 'drforest', 'version.py')).read())
 
 
 MOD_NAMES = [

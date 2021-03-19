@@ -1,8 +1,14 @@
 [build-system]
 requires = [
-    "setuptools",
+    "setuptools>=42",
+    "setuptools_scm[toml]>=3.4",
     "wheel",
     "Cython",
     "scipy",
-    "numpy"
+    "oldest-supported-numpy; python_version>='3.5'"
 ]
+
+build-backend = "setuptools.build_meta"
+
+[tools.setuptools_scm]
+write_to = "drforest/version.py"

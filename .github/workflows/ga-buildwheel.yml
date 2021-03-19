@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  release:
+  types:
+  - published
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, windows-2019, macos-10.15]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+            CIBW_SKIP: pp* cp27-win*
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
