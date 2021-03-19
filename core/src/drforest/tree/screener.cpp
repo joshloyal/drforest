@@ -83,7 +83,7 @@ namespace drforest {
         // NOTE: another option is to set a cut-off of the normalize scores
         //       importances / sum(importances). For example 0.75 * median
         //       or 0.75 * mean.
-        arma::uvec feature_ids = arma::stable_sort_index(importances, 1);
+        arma::uvec feature_ids = arma::stable_sort_index(importances, "descend");
         return feature_ids.rows(0, max_features_ - 1);
 
     }

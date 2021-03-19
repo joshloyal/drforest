@@ -24,7 +24,7 @@ jobs:
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
         env:
-          CIBW_SKIP: cp27-* cp35-*
+          CIBW_SKIP: cp27-*
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
