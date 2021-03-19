@@ -27,13 +27,6 @@ MOD_NAMES = [
     'drforest.ensemble._forest'
 ]
 
-with open('requirements.txt') as f:
-    INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
-
-
-with open('test_requirements.txt') as f:
-    TEST_REQUIRES = [l.strip() for l in f.readlines() if l]
-
 
 try:
     import numpy
@@ -156,32 +149,6 @@ def generate_extensions(macros=[]):
     return ext_modules
 
 
-def copy_core():
-    """Copy core to src directiory (only works when run in
-    setup.py directory..."""
-    package_src = os.path.join(HERE, "src")
-
-    # copy C++ source into the package src directory
-    if os.path.exists(package_src):
-        shutil.rmtree(package_src)
-
-    shutil.copytree("core/src", package_src)
-
-
-DISTNAME = 'drforest'
-DESCRIPTION = 'Dimension Reduction Forests'
-with open('README.rst') as f:
-    LONG_DESCRIPTION = f.read()
-MAINTAINER = 'Joshua D. Loyal'
-MAINTAINER_EMAIL = 'jloyal25@gmail.com'
-URL = 'https://joshloyal.github.io/drforest'
-DOWNLOAD_URL = 'https://pypi.org/project/drforest/#files'
-LICENSE = 'MIT'
-VERSION = __version__
-CLASSIFIERS = []
-
-
-
 def setup_package():
 
     if len(sys.argv) > 1 and sys.argv[1] == 'clean':
@@ -190,8 +157,6 @@ def setup_package():
             shutil.rmtree(package_src)
 
         return clean(HERE)
-
-    #copy_core()
 
     cython_cov = 'CYTHON_COV' in os.environ
 
@@ -204,30 +169,10 @@ def setup_package():
         generate_cython(cython_cov)
         ext_modules = generate_extensions(macros=macros)
         setup(
-            name=DISTNAME,
-            maintainer=MAINTAINER,
-            maintainer_email=MAINTAINER_EMAIL,
-            description=DESCRIPTION,
-            license=LICENSE,
-            url=URL,
-            version=VERSION,
-            download_url=DOWNLOAD_URL,
-            long_description=LONG_DESCRIPTION,
-            zip_safe=False,
-            classifiers=CLASSIFIERS,
-            package_data={
-                '': [
-                    'drforest' + os.path.sep + '*.pyx',
-                    'drforest' + os.path.sep + '*.pxd'
-                ]
-            },
-            include_package_data=True,
+            name="drforest",
             packages=find_packages(),
-            install_requires=INSTALL_REQUIRES,
-            extras_require={'test': TEST_REQUIRES},
-            setup_requires=['pytest-runner'],
-            tests_require=TEST_REQUIRES,
-            ext_modules=ext_modules
+            ext_modules=ext_modules,
+            package_data={"": ["*.pyx", "*.pxd"]},
         )
 
 if __name__ == '__main__':
