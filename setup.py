@@ -17,13 +17,7 @@ from setuptools import Extension
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # armadillo includes
-ARMADILLO_INC = os.environ.get('ARMADILLO_INCLUDE')
-if not ARMADILLO_INC:
-    ARMADILLO_INC = os.path.join(HERE, 'third-party')
-    print(ARMADILLO_INC)
-
-ARMADILLO_LIB = os.environ.get('ARMADILLO_LIB')
-
+ARMADILLO_INC = os.path.join(HERE, 'third-party')
 
 MOD_NAMES = [
     'drforest.armadillo',
@@ -122,14 +116,8 @@ def cythonize_source(source, cython_cov=False):
 
 def make_extension(ext_name, macros=[]):
     ext_path = ext_name.replace('.', os.path.sep) + '.cpp'
-    include_dirs = [numpy.get_include(), ".", "./src"]
-    if ARMADILLO_INC:
-        include_dirs.append(ARMADILLO_INC)
-
+    include_dirs = [numpy.get_include(), ARMADILLO_INC, ".", "./src"]
     library_dirs = ['/usr/lib']
-    if ARMADILLO_LIB:
-        library_dirs.append(ARMADILLO_LIB)
-
     if get_include():
         include_dirs = [get_include()] + include_dirs
 
@@ -140,7 +128,7 @@ def make_extension(ext_name, macros=[]):
         extra_compile_args=["-O3", "-fPIC", "-std=c++1z", "-fopenmp"],
         extra_link_args=["-fopenmp"],
         define_macros=macros,
-        libraries=['blas', 'lapack', 'armadillo', 'stdc++'],
+        libraries=['blas', 'lapack', 'stdc++'],
         library_dirs=library_dirs,
         language='c++')
 

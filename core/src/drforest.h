@@ -1,6 +1,7 @@
 #pragma once
 
 #define ARMA_DONT_PRINT_ERRORS
+#define ARMA_DONT_USE_WRAPPER
 
 // Do not mix RcppArmadillo headers with base armadillo headers.
 // This will cause segmentations faults in the R wrapper.
