@@ -58,7 +58,7 @@ This package includes the simulation studies and real-data applications found in
 * A comparison with other methods on synthetic data: ([here](/examples/synthetic_data.py)).
 * A evaluation of the performance of local subspace variable importance estimates on synthetic data: ([here](/examples/local_subspace_importances.py)).
 * A comparison with other methods on real regression problems: ([here](/examples/real_data.py)).
-* An application to understanding meteorological factors on pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
+* An appliction using LSVIs to infer meteorological factors contributing to  pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
 
 We also provide a few [jupyter notebooks](/notebooks) that demonstrate the use of this package.
 
