@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Clang with OpenMP Support
         if: runner.os == 'macOS'
-        run: brew install clang-omp; export CC=clang-omp; export CXX=clang-omp
+        run: brew install llvm$; export CC=$(brew --prefix)/bin/clang; export CXX=$(brew --prefix)/bin/clang++
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
