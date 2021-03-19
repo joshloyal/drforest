@@ -18,9 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Clang with OpenMP Support
+      - name: Setup Clang Compilers
         if: runner.os == 'macOS'
-        run: brew install llvm; export CC=$(brew --prefix)/bin/clang; export CXX=$(brew --prefix)/bin/clang++
+        run: brew install libomp
+        env:
+          CC: $(brew --prefix)/bin/clang
+          CXX: $(brew --prefix)/bin/clang++
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
