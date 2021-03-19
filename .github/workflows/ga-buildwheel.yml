@@ -3,8 +3,8 @@ name: Build
 on:
   workflow_dispatch:
   release:
-  types:
-  - published
+    types:
+    - published
 
 jobs:
   build_wheels:
