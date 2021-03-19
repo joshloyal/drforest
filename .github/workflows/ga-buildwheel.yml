@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Armadillo
-        run: sudo apt-get install libarmadillo-dev; ls /usr/local/include/
+        run: sudo apt-get install libarmadillo-dev; ls /usr/include
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
