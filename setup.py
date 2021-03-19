@@ -18,6 +18,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 # armadillo includes
 ARMADILLO_INC = os.environ.get('ARMADILLO_INCLUDE')
+if not ARMADILLO_INC:
+    ARMADILLO_INC = os.path.join(HERE, 'third-party')
+    print(ARMADILLO_INC)
+
 ARMADILLO_LIB = os.environ.get('ARMADILLO_LIB')
 
 
@@ -118,7 +122,7 @@ def cythonize_source(source, cython_cov=False):
 
 def make_extension(ext_name, macros=[]):
     ext_path = ext_name.replace('.', os.path.sep) + '.cpp'
-    include_dirs = [numpy.get_include(), ".", "./src", "/usr/include/"]
+    include_dirs = [numpy.get_include(), ".", "./src"]
     if ARMADILLO_INC:
         include_dirs.append(ARMADILLO_INC)
 
