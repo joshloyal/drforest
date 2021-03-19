@@ -18,8 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Linear Algebra
-        run: sudo apt-get install libblas-dev liblapack-dev
+      #- name: Install Linear Algebra
+      #  run: sudo apt-get install libblas-dev liblapack-dev
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0

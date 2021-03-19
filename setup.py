@@ -128,7 +128,8 @@ def make_extension(ext_name, macros=[]):
         extra_compile_args=["-O3", "-fPIC", "-std=c++1z", "-fopenmp"],
         extra_link_args=["-fopenmp"],
         define_macros=macros,
-        libraries=['blas', 'lapack', 'stdc++'],
+        #libraries=['blas', 'lapack', 'stdc++'],
+        libraries=['stdc++'],
         library_dirs=library_dirs,
         language='c++')
 
