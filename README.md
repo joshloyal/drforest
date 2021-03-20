@@ -63,7 +63,7 @@ As an example, we consider the following regression function
 where we generate five covariates uniformly on [-3, 3]. In this scenario there are two informative covariates and three uninformative covariates. Projected onto the first two coordinates, the regression surface looks like
 
 <p align="center">
-<img src="/images/contours.png" alt="Simulation 1" width="600">
+<img src="/images/contours.png" alt="Simulation 1" width="400">
 </p>
 
 To fit a dimension reduction forest, we simulate the data,  initialize the estimator, and call fit:
