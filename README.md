@@ -16,6 +16,20 @@ BibTeX reference to cite, if you use this package:
 ```
 --->
 
+Background
+----------
+
+Dimension reduction forests (DRFs) are a method for nonparametric regression
+that also quantifies local variable importance by using methods from
+sufficient dimension reduction (SDR). In particular, we take the perspective
+of random forests as adaptive kernel methods. We pair random forests with
+sufficient dimension reduction to estimate a nonparametric kernel that adapts
+to the regression functions local contours. We then leverage this adaptivity
+to estimate a type of local variable importance we call
+*local subspace variable importance*. The result is a powerful model-free
+predictive method that is more accurate than naively combining random forests
+with global SDR methods.
+
 Dependencies
 ------------
 ``drforest`` requires:
@@ -97,7 +111,7 @@ on the test set as follows:
 ```python
 from drforest.plots import plot_local_importance
 
-# extract local importances at each point in the test set 
+# extract local importances at each point in the test set
 importances = drforest.local_subspace_importance(X_test, n_jobs=-1)
 
 # plot the marginal distributions of each importance measure
