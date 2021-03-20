@@ -71,22 +71,31 @@ from sklearn.model_selection import train_test_split
 from drforest.datasets import make_simulation1
 from drforest.ensemble import DimensionReductionForestRegressor
 
+# simulate regression problem
 X, y = make_simulation1(
-    n_samples=n_samples, noise=1, n_features=5, random_state=123)
+    n_samples=2000, noise=1, n_features=5, random_state=123)
 
+# 80% - 20% train-test split
 X_train, X_test, y_train, y_test = train_test_split(
    X, y, test_size=0.2, random_state=42)
 
+# fit the dimension reduction forest
 drforest = DimensionReductionForestRegressor(
     n_estimators=500, min_samples_leaf=1, n_jobs=-1).fit(X, y)
 
+# predict on the test set and compare with the out-of-bag (OOB) estimate
 y_pred = drforest.predict(X_test)
-print('test MSE: ', mean_squared_error(y_test, y_pred))
->>> 3.79
-print('OOB MSE: ', drforest.oob_mse_)
->>> 4.13
+print('Test MSE: {:.2f}'.format(mean_squared_error(y_test, y_pred)))
+>>> Test MSE: 3.79
+print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
+>>> OOB MSE: 4.13
 ```
 
+An importance aspect of the dimension reduction forests is there ability to
+extract a local variable importance measure known as
+*local subspace variable importance*.  This is a feature importance assigned
+to each prediction point. We can visualize the distribution of these importances
+on the test set as follows:
 ```python
 from drforest.plots import plot_local_importance
 
