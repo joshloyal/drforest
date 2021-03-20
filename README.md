@@ -62,6 +62,9 @@ As an example, we consider the following regression function
 </p>
 where we generate five covariates uniformly on [-3, 3]. In this scenario there are two informative covariates and three uninformative covariates. Projected onto the first two coordinates, the regression surface looks like
 
+<p align="center">
+<img src="/images/contours.png" alt="Simulation 1" width="600">
+</p>
 
 To fit a dimension reduction forest, we simulate the data,  initialize the estimator, and call fit:
 ```python
@@ -91,8 +94,8 @@ print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
 >>> OOB MSE: 4.13
 ```
 
-An importance aspect of the dimension reduction forests is there ability to
-extract a local variable importance measure known as
+An important capability of the dimension reduction forests is there ability to
+produce a meaningful local variable importance measure known as
 *local subspace variable importance*.  This is a feature importance assigned
 to each prediction point. We can visualize the distribution of these importances
 on the test set as follows:
