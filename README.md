@@ -157,7 +157,8 @@ increasing Feature 1 while decreasing Feature 2, or vice versa, is influential.
 
 Simulation Studies and Real-Data Applications
 ---------------------------------------------
-This package includes the simulation studies and real-data applications found in Loyal et al. (2021)<sup>[[6]](#References)</sup>:
+This package includes the simulation studies and real-data applications found in
+the main article:
 
 * A simple example of local variable importance on a synthetic dataset: ([here](/examples/random_forest_importances.py)).
 * A comparison with other methods on synthetic data: ([here](/examples/synthetic_data.py)).
