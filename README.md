@@ -96,6 +96,7 @@ extract a local variable importance measure known as
 *local subspace variable importance*.  This is a feature importance assigned
 to each prediction point. We can visualize the distribution of these importances
 on the test set as follows:
+
 ```python
 from drforest.plots import plot_local_importance
 
@@ -103,12 +104,15 @@ importances = drforest.local_subspace_importance(X, n_jobs=-1)
 
 plot_local_importance(importances)
 ```
+
 <p align="center">
 <img src="/images/lsvi_example.png" alt="local subspace variable importances" width="600">
 </p>
+
 From this plot, we clearly see that Feature 1 and Feature 2 are significant, while
 Features 3 through Feature 5 do not play a role in predicting the outcome.
 Finally, we can see how the feature importance varies thoughout the input space.
+
 ```python
 fig, ax = plt.subplots(figsize=(16, 18), ncols=2, sharey=True)
 
@@ -122,6 +126,7 @@ imp_x = drforest.local_subspace_importance(np.array([0.5, -0.5, 0, 0, 0]))
 imp_x *= np.sign(imp_x[0])  # force loading of first component postitive
 plot_single_importance(imp_x, ax=ax[1], rotation=30)
 ```
+
 <p align="center">
 <img src="/images/lsvi_local.png" alt="local subspace variable importances" width="600">
 </p>
