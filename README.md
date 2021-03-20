@@ -48,8 +48,8 @@ Or install using pip and GitHub:
 pip install -U git+https://github.com/joshloyal/drforest.git
 ```
 
-Example
--------
+Example Usage
+-------------
 As an example, we consider the following regression function
 <p align="center">
 <img src="/images/simulation1.png" alt="Simulation 1" width="600">
