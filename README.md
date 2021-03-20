@@ -1,7 +1,6 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/joshloyal/drforest/blob/master/LICENSE)
-<!--[![Travis](https://travis-ci.com/joshloyal/dynetlsm.svg?token=gTKqq3zSsip89mhYVQPZ&branch=master)](https://travis-ci.com/joshloyal/dynetlsm)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/joshloyal/dynetlsm)](https://ci.appveyor.com/project/joshloyal/dynetlsm/history)
-[![PyPI Latest Release](https://img.shields.io/pypi/v/dynetlsm)](https://pypi.org/project/dynetlsm/)-->
+<!--[![Travis](https://travis-ci.com/joshloyal/drforest.svg?token=gTKqq3zSsip89mhYVQPZ&branch=master)](https://travis-ci.com/joshloyal/drforest)
+[![PyPI Latest Release](https://img.shields.io/pypi/v/drforest)](https://pypi.org/project/drforest/)-->
 
 # Dimension Reduction Forests
 
@@ -11,7 +10,7 @@ This package provides the statistical estimation methods for dimension reduction
 
 BibTeX reference to cite, if you use this package:
 <!--```bibtex
-@article{loyal2020hdplpcm,
+@article{loyal2021drforest,
 }
 ```
 --->
