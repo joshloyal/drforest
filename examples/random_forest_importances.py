@@ -92,5 +92,4 @@ ax[3].text(2.5, 0.8, '$\mathbf{x}_0 = (0.5, -0.5, 0, 0, 0)$', fontsize=10)
 ax[3].set_ylim(-1, 1)
 
 plt.subplots_adjust(wspace=0.3, left=0.03, right=0.985)
-plt.show()
-#fig.savefig('local_svi.pdf', dpi=300, bbox_inches='tight')
+fig.savefig('local_svi.pdf', dpi=300, bbox_inches='tight')

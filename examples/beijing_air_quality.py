@@ -3,6 +3,9 @@ import os
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.cm import get_cmap
+from matplotlib.colors import rgb2hex
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -12,7 +15,6 @@ from sklearn.ensemble import RandomForestRegressor
 from drforest.datasets import load_beijing
 from drforest.ensemble import DimensionReductionForestRegressor
 from drforest.ensemble import permutation_importance
-from drforest.plots import plot_local_importance
 
 
 OUT_DIR = 'beijing_results'
@@ -47,6 +49,11 @@ g.savefig(os.path.join(OUT_DIR, 'beijing_pairplot.png'),
 
 # standardize data and perform a 80%-20% train/test split
 cols = ['Temperature', 'Humidity', 'Pressure', 'Wind Speed', 'Month']
+
+# special palette for feature importances
+pal = {cols[i] : rgb2hex(get_cmap('tab10')(i)) for i in range(4)}
+pal[cols[-1]] = rgb2hex(get_cmap('tab10')(6))
+
 X = data[cols].values
 y = data['PM25_Concentration'].values
 
@@ -90,13 +97,8 @@ print('R2 = ', r_sq)
 importances = drforest.local_subspace_importance(X_std, n_jobs=-1)
 importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 
-# visualize marginal LSVI histograms
-fig = plot_local_importance(
-    importances, feature_names=np.asarray(cols), color='0.3')
-fig.savefig(os.path.join(OUT_DIR, 'beijing_loadings.png'), dpi=300)
-
-# visualize LSVI's as a function of month
-fig, ax = plt.subplots(figsize=(10, 6))
+# visualize LSVI's as a function of month and their marginal distributions
+fig, ax = plt.subplots(figsize=(20, 6), ncols=2, sharey=True)
 month_col = 4
 loading_medians = []
 loading_up = []
@@ -118,20 +120,33 @@ loading_up = np.asarray(loading_up)
 loading_low = np.asarray(loading_low)
 
 for p in range(4):
-    ax.plot(loading_medians[:, p], 'o-', lw=2, label=cols[p], markersize=8,
-            linestyle='--')
-    ax.fill_between(np.arange(12),
-                    loading_low[:, p], loading_up[:, p], alpha=0.2)
+    ax[1].plot(loading_medians[:, p], 'o-', lw=2, label=cols[p], markersize=8,
+               linestyle='--')
+    ax[1].fill_between(np.arange(12),
+                       loading_low[:, p], loading_up[:, p], alpha=0.2)
 
 tick_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-ax.set_xticks([i for i in range(0, 12, 2)])
-ax.set_xticklabels(tick_labels[::2], labelsize=16)
-ax.grid(axis='x')
+ax[1].set_xticks([i for i in range(0, 12, 2)])
+ax[1].set_xticklabels(tick_labels[::2], fontsize=16)
+ax[1].tick_params(axis='y', labelsize=16)
+ax[1].grid(axis='x')
 
-ax.legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=4, facecolor='w')
-ax.set_xlabel('Month')
-ax.set_ylabel('LSVI Loadings', fontsize=16)
+ax[1].legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=4, facecolor='w')
+ax[1].set_xlabel('Month', fontsize=20)
+ax[1].set_ylabel('LSVI Loadings', fontsize=16)
+ax[1].yaxis.set_tick_params(labelleft=True)
+
+imp = pd.melt(pd.DataFrame(importances, columns=cols))
+
+order = np.argsort(np.var(importances, axis=0))[::-1]
+sns.violinplot(x='variable', y='value', data=imp, order=np.asarray(cols)[order],
+               inner='quartile', palette=pal, ax=ax[0], scale='count')
+
+ax[0].set_ylabel('LSVI Loadings', fontsize=18)
+ax[0].set_xlabel('')
+ax[0].tick_params(axis='y', labelsize=16)
+ax[0].tick_params(axis='x', labelsize=16)
 
 fig.savefig(os.path.join(OUT_DIR, 'lsvi_month.png'), dpi=300,
             bbox_inches='tight')
