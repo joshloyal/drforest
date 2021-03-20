@@ -69,7 +69,7 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-  build_macos13_wheels:
+  build_macos12_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
