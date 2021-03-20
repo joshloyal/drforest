@@ -7,9 +7,6 @@ import contextlib
 import subprocess
 import glob
 
-import setuptools_scm  # noqa: F401
-import toml  # noqa: F401
-
 from setuptools import setup, find_packages
 from setuptools import Extension
 
