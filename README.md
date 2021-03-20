@@ -140,6 +140,11 @@ ax[1].set_title(r'$x = (0.5, -0.5, 0, 0, 0)$', fontsize=16)
 <img src="/images/lsvi_local.png" alt="local subspace variable importances" width="600">
 </p>
 
+From these plots, we conclude that at x = (-1.5, 1.5, 0, 0, 0), simultaneously
+increasing or decreasing both Feature 1 and Feature 2 influences the regression
+function. On the other hand, at x = (0.5, -0.5, 0, 0, 0), simultaneously
+increasing Feature 1 while decreasing Feature 2, or vice versa, is influential.
+
 Simulation Studies and Real-Data Applications
 ---------------------------------------------
 This package includes the simulation studies and real-data applications found in Loyal et al. (2021)<sup>[[6]](#References)</sup>:
