@@ -166,8 +166,3 @@ This package includes the simulation studies and real-data applications found in
 * An appliction using LSVIs to infer meteorological factors contributing to  pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
 
 We also provide a few [jupyter notebooks](/notebooks) that demonstrate the use of this package.
-
-References
-----------
-
-[1]:
