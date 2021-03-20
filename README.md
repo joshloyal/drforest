@@ -54,8 +54,8 @@ Background
 Write about some background here.
 
 
-Examples
---------
+Example
+-------
 As an example, we consider the following regression function
 <p align="center">
 <img src="/images/simulation1.png" alt="Simulation 1" width="600">
@@ -81,7 +81,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # fit the dimension reduction forest
 drforest = DimensionReductionForestRegressor(
-    n_estimators=500, min_samples_leaf=1, n_jobs=-1).fit(X, y)
+    n_estimators=500, min_samples_leaf=3, n_jobs=-1).fit(X, y)
 
 # predict on the test set and compare with the out-of-bag (OOB) estimate
 y_pred = drforest.predict(X_test)
@@ -106,7 +106,25 @@ plot_local_importance(importances)
 <p align="center">
 <img src="/images/lsvi_example.png" alt="local subspace variable importances" width="600">
 </p>
+From this plot, we clearly see that Feature 1 and Feature 2 are significant, while
+Features 3 through Feature 5 do not play a role in predicting the outcome.
+Finally, we can see how the feature importance varies thoughout the input space.
+```python
+fig, ax = plt.subplots(figsize=(16, 18), ncols=2, sharey=True)
 
+# calculate importance at x = (-1.5, 1.5, 0, 0, 0)
+imp_x = drforest.local_subspace_importance(np.array([-1.5, 1.5, 0, 0, 0]))
+imp_x *= np.sign(imp_x[0])  # force loading of first component positive
+plot_single_importance(imp_x, ax=ax[0], rotation=30)
+
+# calculate importance at x = (0.5, -0.5, 0, 0, 0)
+imp_x = drforest.local_subspace_importance(np.array([0.5, -0.5, 0, 0, 0]))
+imp_x *= np.sign(imp_x[0])  # force loading of first component postitive
+plot_single_importance(imp_x, ax=ax[1], rotation=30)
+```
+<p align="center">
+<img src="/images/lsvi_local.png" alt="local subspace variable importances" width="600">
+</p>
 
 Simulation Studies and Real-Data Applications
 ---------------------------------------------

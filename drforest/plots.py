@@ -5,7 +5,7 @@ import seaborn as sns
 
 
 __all__ = ['plot_local_importance', 'plot_variable_importance',
-           'plot_local_importance_histogram']
+           'plot_local_importance_histogram', 'plot_single_importance']
 
 
 def label(x, color, label):
@@ -137,3 +137,30 @@ def plot_local_importance_histogram(
     g.despine(bottom=True, left=True)
 
     return g
+
+
+def plot_single_importance(imp_x, figsize=(10, 12), rotation=None, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = None
+
+    color = ['tomato' if x > 0 else 'cornflowerblue' for x in imp_x]
+
+    n_features = imp_x.shape[0]
+    ax.bar(np.arange(n_features), imp_x, color=color)
+
+    ax.axhline(0, color='black', linestyle='-', lw=1)
+
+    ax.set_ylabel('Importance', fontsize=18)
+    ax.set_ylim(-1, 1)
+
+    ax.set_xlabel('')
+    ax.tick_params(axis='y', labelsize=16)
+    ax.tick_params(axis='x', labelsize=16)
+    ax.set_xticks(np.arange(n_features))
+    ax.set_xticklabels(
+        ['Feature {}'.format(i + 1) for i in range(n_features)],
+        rotation=rotation)
+
+    return ax
