@@ -33,13 +33,13 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
-  build_macos_wheels:
+  build_macos15_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-10.15, macos-10.12]
+        os: [macos-10.15]
         cibw_skip_python: ["cp27-*", "cp35-*", "pp*", "*-manylinux_i686"]
     steps:
       - uses: actions/checkout@v2
@@ -57,6 +57,42 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: ${{ matrix.cibw_skip_python }}
+          CC: /usr/local/opt/llvm/bin/clang
+          CXX: /usr/local/opt/llvm/bin/clang++
+          CPPFLAGS: "-fopenmp"
+          CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
+          CXXFLAGS: "-I/usr/local/opt/libomp/include"
+          LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_macos13_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-10.12]
+        cibw_build_python: ["cp38-*"]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install OpenMP for macOS
+        if: runner.os == 'macOS'
+        run: brew install libomp
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Build wheels for macOS
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+          CIBW_BUILD: ${{ matrix.cibw_build_python }}
           CC: /usr/local/opt/llvm/bin/clang
           CXX: /usr/local/opt/llvm/bin/clang++
           CPPFLAGS: "-fopenmp"
