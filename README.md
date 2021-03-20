@@ -56,16 +56,35 @@ Write about some background here.
 
 Examples
 --------
+As an example, we consider the following regression function
+<p align="center">
+<img src="/images/simulation1.png" alt="Simulation 1" width="600">
+</p>
+where we generate five covariates uniformly on [-3, 3]. In this scenario there are two informative covariates and three uninformative covariates. Projected onto the first two coordinates, the regression surface looks like
+
+
+To fit a dimension reduction forest, we simulate the data,  initialize the estimator, and call fit:
 ```python
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+
 from drforest.datasets import make_simulation1
 from drforest.ensemble import DimensionReductionForestRegressor
 
 X, y = make_simulation1(
     n_samples=n_samples, noise=1, n_features=5, random_state=123)
 
+X_train, X_test, y_train, y_test = train_test_split(
+   X, y, test_size=0.2, random_state=42)
+
 drforest = DimensionReductionForestRegressor(
     n_estimators=500, min_samples_leaf=1, n_jobs=-1).fit(X, y)
 
+y_pred = drforest.predict(X_test)
+print('test MSE: ', mean_squared_error(y_test, y_pred))
+>>> 3.79
+print('OOB MSE: ', drforest.oob_mse_)
+>>> 4.13
 ```
 
 ```python
@@ -76,7 +95,7 @@ importances = drforest.local_subspace_importance(X, n_jobs=-1)
 plot_local_importance(importances)
 ```
 <p align="center">
-<img src="/images/lsvi_example.png" alt="local subspace variable importances" width="225">
+<img src="/images/lsvi_example.png" alt="local subspace variable importances" width="600">
 </p>
 
 
