@@ -16,6 +16,10 @@ from setuptools import Extension
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+# import ``__version__` from code base
+exec(open(os.path.join(HERE, 'drforest', 'version.py')).read())
+VERSION = __version__
+
 # armadillo includes
 ARMADILLO_INC = os.path.join(HERE, 'third-party')
 
@@ -163,6 +167,7 @@ def setup_package():
         ext_modules = generate_extensions(macros=macros)
         setup(
             name="drforest",
+            version=VERSION,
             packages=find_packages(),
             ext_modules=ext_modules,
             package_data={"": ["*.pyx", "*.pxd"]},

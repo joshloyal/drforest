@@ -50,9 +50,6 @@ jobs:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
           CC: /usr/local/opt/llvm/bin/clang
           CXX: /usr/local/opt/llvm/bin/clang++
-          #CC: /usr/bin/clang
-          #CXX: /usr/bin/clang++
-          #CPPFLAGS: "-Xpreprocessor -fopenmp"
           CPPFLAGS: "-fopenmp"
           CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
           CXXFLAGS: "-I/usr/local/opt/libomp/include"
