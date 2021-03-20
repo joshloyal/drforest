@@ -88,7 +88,7 @@ print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
 >>> OOB MSE: 4.13
 ```
 
-An important capability of the dimension reduction forests is there ability to
+An important capability of dimension reduction forests is there ability to
 produce a meaningful local variable importance measure known as
 *local subspace variable importance*.  This is a feature importance assigned
 to each prediction point. We can visualize the distribution of these importances
@@ -97,8 +97,10 @@ on the test set as follows:
 ```python
 from drforest.plots import plot_local_importance
 
-importances = drforest.local_subspace_importance(X, n_jobs=-1)
+# extract local importances at each point in the test set 
+importances = drforest.local_subspace_importance(X_test, n_jobs=-1)
 
+# plot the marginal distributions of each importance measure
 plot_local_importance(importances)
 ```
 
