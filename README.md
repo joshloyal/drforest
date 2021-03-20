@@ -109,7 +109,7 @@ plot_local_importance(importances)
 </p>
 
 From this plot, we clearly see that Feature 1 and Feature 2 are significant, while
-Features 3 through Feature 5 do not play a role in predicting the outcome.
+Features 3, Feature 4, and Feature 5 do not play a role in predicting the outcome.
 Finally, we can see how the feature importance varies thoughout the input space.
 
 ```python
