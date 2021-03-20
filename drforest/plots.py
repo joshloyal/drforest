@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-__all__ = ['plot_local_importance', 'plot_variable_importance']
+__all__ = ['plot_local_importance', 'plot_variable_importance',
+           'plot_local_importance_histogram']
 
 
 def label(x, color, label):
@@ -67,8 +68,35 @@ def plot_variable_importance(importances, plot_type='bar', normalize=False,
     return fig, ax
 
 
-def plot_local_importance(directions, importances=None, feature_names=None,
-                          figsize=(10, 6), color='0.3', bins=30):
+def plot_local_importance(importances, sort_features=False, feature_names=None,
+                          figsize=(10, 6), palette='Set3', scale='count',
+                          inner='quartile'):
+    n_features = importances.shape[1]
+    if feature_names is None:
+        feature_names = ["Feature {}".format(i + 1) for i in range(n_features)]
+    feature_names = np.asarray(feature_names)
+
+    if sort_features:
+        order = np.argsort(np.var(importances, axis=0))[::-1]
+        importances = importances[:, order]
+        feature_names = feature_names[order]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    data = pd.melt(pd.DataFrame(importances, columns=feature_names))
+    sns.violinplot(x='variable', y='value', data=data, palette=palette,
+                   scale=scale, inner='quartile', ax=ax)
+
+
+    ax.set_xlabel('')
+    ax.set_ylabel('LSVI Loadings', fontsize=18)
+    ax.tick_params(axis='y', labelsize=16)
+    ax.tick_params(axis='x', labelsize=16)
+
+    return fig, ax
+
+def plot_local_importance_histogram(
+        directions, importances=None, feature_names=None,
+        figsize=(10, 6), color='0.3', bins=30):
     """Plot marginal distribution of local subspace variable importances."""
     n_samples, n_features = directions.shape
 

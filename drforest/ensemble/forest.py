@@ -1,5 +1,4 @@
 import numbers
-import six
 
 import numpy as np
 
@@ -255,7 +254,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         # check parameters
         max_depth = -1 if self.max_depth is None else self.max_depth
 
-        if isinstance(self.max_features, six.string_types):
+        if isinstance(self.max_features, str):
             if self.max_features == "auto" :
                 max_features = n_features
             elif self.max_features == 'log2':
@@ -274,7 +273,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         if not (0 < max_features <= n_features):
             raise ValueError("max_features must be in (0, n_features]")
 
-        if isinstance(self.min_samples_leaf, six.string_types):
+        if isinstance(self.min_samples_leaf, str):
             if self.min_samples_leaf == "auto":
                 min_samples_leaf =  1
             else:

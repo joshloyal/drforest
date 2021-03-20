@@ -2,4 +2,3 @@ include *.md
 recursive-include examples *
 recursive-include drforest/datasets/data *.csv
 include requirements.txt
-include test_requirements.txt

@@ -7,8 +7,7 @@
 
 *Author: [Joshua D. Loyal](https://joshloyal.github.io/)*
 
-This package provides an interface for dimension reduction forests described in
-"Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
+This package provides the statistical estimation methods for dimension reduction forests and local subspace variable importances described in "Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
 
 BibTeX reference to cite, if you use this package:
 <!--```bibtex
@@ -33,7 +32,9 @@ You need a working installation of numpy and scipy to install ``drforest``. If y
 pip install -U drforest
 ```
 
-If you prefer, you can clone the repository and run the setup.py file. Use the following commands to get the copy from GitHub and install all the dependencies:
+If you prefer, you can clone the repository and run the setup.py file. Note that the package uses OpenMP, so you will need a C/C++ compiler with OpenMP support. In addition, we use ``pthreads``, which means the package currently does not support Windows.
+
+Use the following commands to get the copy from GitHub and install all the dependencies:
 
 ```
 git clone https://github.com/joshloyal/drforest.git
@@ -49,6 +50,35 @@ pip install -U git+https://github.com/joshloyal/drforest.git
 
 Background
 ----------
+
+Write about some background here.
+
+
+Examples
+--------
+```python
+from drforest.datasets import make_simulation1
+from drforest.ensemble import DimensionReductionForestRegressor
+
+X, y = make_simulation1(
+    n_samples=n_samples, noise=1, n_features=5, random_state=123)
+
+drforest = DimensionReductionForestRegressor(
+    n_estimators=500, min_samples_leaf=1, n_jobs=-1).fit(X, y)
+
+```
+
+```python
+from drforest.plots import plot_local_importance
+
+importances = drforest.local_subspace_importance(X, n_jobs=-1)
+
+plot_local_importance(importances)
+```
+<p align="center">
+<img src="/images/lsvi_example.png" alt="local subspace variable importances" width="225">
+</p>
+
 
 Simulation Studies and Real-Data Applications
 ---------------------------------------------

@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import six
 import warnings
 
 import numpy as np
@@ -165,7 +160,7 @@ class SlicedInverseRegression(BaseEstimator, TransformerMixin):
 
         if self.n_directions is None:
             n_directions = X.shape[1]
-        elif (not isinstance(self.n_directions, six.string_types) and
+        elif (not isinstance(self.n_directions, str) and
                 self.n_directions < 1):
             raise ValueError('The number of directions `n_directions` '
                              'must be >= 1. Got `n_directions`={}'.format(

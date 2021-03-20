@@ -1,5 +1,4 @@
 import numbers
-import six
 
 import numpy as np
 
@@ -38,7 +37,7 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
         # check parameters
         max_depth = -1 if self.max_depth is None else self.max_depth
 
-        if isinstance(self.max_features, six.string_types):
+        if isinstance(self.max_features, str):
             if self.max_features == "auto":
                 max_features = n_features
             else:
@@ -79,7 +78,7 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
                                     self.min_samples_save))
             min_samples_save = int(np.ceil(self.min_samples_save * n_samples))
 
-        if isinstance(self.sdr_algorithm, six.string_types):
+        if isinstance(self.sdr_algorithm, str):
             if self.sdr_algorithm not in ["sir", "save"]:
                 raise ValueError("sdr_algorithm must be one of "
                                  "{'sir', 'save'}. got {}".format(

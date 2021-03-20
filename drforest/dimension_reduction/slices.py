@@ -1,16 +1,7 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-from pkg_resources import parse_version
-
 import warnings
 
 import numpy as np
 import scipy.linalg as linalg
-
-
-NUMPY_UNIQUE_COUNTS_VERSION = '1.9.0'
 
 
 def is_multioutput(y):
@@ -47,12 +38,7 @@ def unique_counts(arr):
         The number of times each of the unique values compes up in the orginal
         array.
     """
-    if (parse_version(np.__version__) >=
-            parse_version(NUMPY_UNIQUE_COUNTS_VERSION)):
-        unique, counts = np.unique(arr, return_counts=True)
-    else:
-        unique, unique_inverse = np.unique(arr, return_inverse=True)
-        counts = np.bincount(unique_inverse)
+    unique, counts = np.unique(arr, return_counts=True)
     return unique, counts
 
 

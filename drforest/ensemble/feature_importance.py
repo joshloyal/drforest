@@ -60,4 +60,3 @@ def permutation_importance(forest, X, y, scale=False, random_state=None):
         importances /= importances_std
 
     return importances
-

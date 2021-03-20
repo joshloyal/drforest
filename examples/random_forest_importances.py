@@ -5,6 +5,7 @@ import pandas as pd
 
 from sklearn.ensemble import RandomForestRegressor
 
+from drforest.datasets import make_simulation1
 from drforest.ensemble import DimensionReductionForestRegressor
 from drforest.ensemble import permutation_importance
 from drforest.plots import plot_local_importance
@@ -16,20 +17,8 @@ fontsize = 14
 n_samples = 2000
 n_features = 5
 
-rng = np.random.RandomState(1234)
-
-
-def func(X):
-    r1 = X[:, 0] - X[:, 1]
-    r2 = X[:, 0] + X[:, 1]
-    return (20 * np.maximum(
-        np.maximum(np.exp(-2 * r1 ** 2), np.exp(-r2 ** 2)),
-        2 * np.exp(-0.5 * (X[:, 0] ** 2 + X[:, 1] ** 2))))
-X = rng.uniform(-3, 3, size=n_samples * n_features).reshape(n_samples, n_features)
-y = func(X)
-
-sigma = 1
-y += np.sqrt(sigma) * rng.randn(n_samples)
+X, y = make_simulation1(
+    n_samples=n_samples, noise=1, n_features=n_features, random_state=1234)
 
 forest = DimensionReductionForestRegressor(
     n_estimators=500, store_X_y=True, n_jobs=-1,
@@ -104,4 +93,4 @@ ax[3].set_ylim(-1, 1)
 
 plt.subplots_adjust(wspace=0.3, left=0.03, right=0.985)
 plt.show()
-fig.savefig('local_svi.pdf', dpi=300, bbox_inches='tight')
+#fig.savefig('local_svi.pdf', dpi=300, bbox_inches='tight')

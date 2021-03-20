@@ -20,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 exec(open(os.path.join(HERE, 'drforest', 'version.py')).read())
 VERSION = __version__
 
-# armadillo includes
+# armadillo header-files included with the package
 ARMADILLO_INC = os.path.join(HERE, 'third-party')
 
 MOD_NAMES = [
@@ -132,8 +132,7 @@ def make_extension(ext_name, macros=[]):
         extra_compile_args=["-O3", "-fPIC", "-std=c++1z", "-fopenmp"],
         extra_link_args=["-fopenmp"],
         define_macros=macros,
-        #libraries=['blas', 'lapack', 'stdc++'],
-        libraries=['stdc++'],
+        libraries=['blas', 'lapack', 'stdc++'],
         library_dirs=library_dirs,
         language='c++')
 
