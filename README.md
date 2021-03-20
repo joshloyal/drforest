@@ -48,12 +48,6 @@ Or install using pip and GitHub:
 pip install -U git+https://github.com/joshloyal/drforest.git
 ```
 
-Background
-----------
-
-Write about some background here.
-
-
 Example
 -------
 As an example, we consider the following regression function
