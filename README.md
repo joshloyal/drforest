@@ -119,12 +119,16 @@ fig, ax = plt.subplots(figsize=(16, 18), ncols=2, sharey=True)
 # calculate importance at x = (-1.5, 1.5, 0, 0, 0)
 imp_x = drforest.local_subspace_importance(np.array([-1.5, 1.5, 0, 0, 0]))
 imp_x *= np.sign(imp_x[0])  # force loading of first component positive
+
+# plot importance
 plot_single_importance(imp_x, ax=ax[0], rotation=30)
 ax[0].set_title(r'$x = (-1.5, 1.5, 0, 0, 0)$', fontsize=16)
 
 # calculate importance at x = (0.5, -0.5, 0, 0, 0)
 imp_x = drforest.local_subspace_importance(np.array([0.5, -0.5, 0, 0, 0]))
 imp_x *= np.sign(imp_x[0])  # force loading of first component postitive
+
+# plot importance
 plot_single_importance(imp_x, ax=ax[1], rotation=30)
 ax[1].set_title(r'$x = (0.5, -0.5, 0, 0, 0)$', fontsize=16)
 ```
