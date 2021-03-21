@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install BLAS and LAPACK
+        run: sudo apt-get install libblas-dev liblapack-dev
+
       - uses: actions/setup-python@v2
         name: Install Python
         with:
@@ -127,7 +130,7 @@ jobs:
           run: python -m pip install dist/drforest-*
 
         - name: Run Tests
-          run: python -m pip pytest
+          run: python -m pytest
 
         - uses: actions/upload-artifact@v2
           with:
