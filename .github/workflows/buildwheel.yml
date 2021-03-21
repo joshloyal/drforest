@@ -20,8 +20,8 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            locate libblas.so
-            locate liblapack.so
+            find / -name libblas
+            find / -name liblapack
             #sudo update-alternatives --list libblas.so.3
             #sudo update-alternatives --list liblapack.so.3
 
