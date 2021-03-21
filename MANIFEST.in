@@ -1,4 +1,5 @@
 include *.md
+recursive-include core/src *.h
 recursive-include third-party armadillo *.hpp
 recursive-include examples *.py
 recursive-include drforest/datasets/data *.csv
