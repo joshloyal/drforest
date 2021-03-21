@@ -34,13 +34,6 @@ except ImportError:
     sys.exit(1)
 
 
-try:
-    import scipy
-except ImportError:
-    print('scipy is required during installation')
-    sys.exit(1)
-
-
 @contextlib.contextmanager
 def chdir(new_dir):
     old_dir = os.getcwd()
