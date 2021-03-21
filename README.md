@@ -95,7 +95,7 @@ drforest = DimensionReductionForestRegressor(
 ```
 
 To make predictions on a new data set, we simply call `predict`. Note that the
-dimension reduction forestalso calculate out-of-bag (OOB)
+dimension reduction forest also calculates the out-of-bag (OOB)
 mean squared error (MSE), which is useful when an external test set is
 not available:
 ```python
