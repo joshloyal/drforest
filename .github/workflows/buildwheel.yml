@@ -1,113 +1,20 @@
-name: Build CI wheels
+  name: Build CI wheels
 
-on:
-  workflow_dispatch:
-  release:
-    types:
-    - published
+  on:
+    workflow_dispatch:
+    release:
+      types:
+      - published
 
-jobs:
-  build_linux_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-20.04]
-        cibw_skip_python: [cp27-*, cp35-*, pp*, *-manylinux_i686]
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.8'
-
-      - name: Build wheels for Linux
-        uses: joerick/cibuildwheel@v1.10.0
-        env:
-          CIBW_SKIP: ${{ matrix.cibw_skip_python }}
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
-
-  build_macos15_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-10.15]
-        cibw_skip_python: [cp27-*, cp35-*, pp*, *-manylinux_i686]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install OpenMP for macOS
-        if: runner.os == 'macOS'
-        run: brew install libomp
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.8'
-
-      - name: Build wheels for macOS
-        uses: joerick/cibuildwheel@v1.10.0
-        env:
-          CIBW_SKIP: ${{ matrix.cibw_skip_python }}
-          CC: /usr/local/opt/llvm/bin/clang
-          CXX: /usr/local/opt/llvm/bin/clang++
-          CPPFLAGS: "-fopenmp"
-          CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
-          CXXFLAGS: "-I/usr/local/opt/libomp/include"
-          LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
-
-  build_macos12_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-10.12]
-        cibw_build_python: [cp38-*]
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Install OpenMP for macOS
-        if: runner.os == 'macOS'
-        run: brew install libomp
-
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.8'
-
-      - name: Build wheels for macOS
-        uses: joerick/cibuildwheel@v1.10.0
-        env:
-          CIBW_BUILD: ${{ matrix.cibw_build_python }}
-          CC: /usr/local/opt/llvm/bin/clang
-          CXX: /usr/local/opt/llvm/bin/clang++
-          CPPFLAGS: "-fopenmp"
-          CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
-          CXXFLAGS: "-I/usr/local/opt/libomp/include"
-          LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
-
-  build_sdist:
-      name: Build source distribution
-      runs-on: ubuntu-latest
+  jobs:
+    build_linux_wheels:
+      name: Build wheels on ${{ matrix.os }}
+      runs-on: ${{ matrix.os }}
+      strategy:
+        fail-fast: false
+        matrix:
+          os: [ubuntu-20.04]
+          cibw_skip_python: [cp27-*, cp35-*, pp*, *-manylinux_i686]
       steps:
         - uses: actions/checkout@v2
 
@@ -116,22 +23,115 @@ jobs:
           with:
             python-version: '3.8'
 
-        - name: Install Libraries
-          run: |
-            python -m pip install --upgrade pip wheel
-            python -m pip install numpy
-            python -m pip install cython
-            python -m pip install pytest
+        - name: Build wheels for Linux
+          uses: joerick/cibuildwheel@v1.10.0
+          env:
+            CIBW_SKIP: ${{ matrix.cibw_skip_python }}
 
-        - name: Build sdist
-          run: python setup.py sdist
-
-        - name: Install Package
-          run: python -m pip install dist/drforest-*
-
-        - name: Run Tests
-          run: python -m pip pytest
-
-        - uses: actions/upload-artifact@v2
+        - name: Upload wheels
+          uses: actions/upload-artifact@v2
           with:
-            path: dist/*.tar.gz
+            path: ./wheelhouse/*.whl
+
+    build_macos15_wheels:
+      name: Build wheels on ${{ matrix.os }}
+      runs-on: ${{ matrix.os }}
+      strategy:
+        fail-fast: false
+        matrix:
+          os: [macos-10.15]
+          cibw_skip_python: [cp27-*, cp35-*, pp*, *-manylinux_i686]
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Install OpenMP for macOS
+          if: runner.os == 'macOS'
+          run: brew install libomp
+
+        - uses: actions/setup-python@v2
+          name: Install Python
+          with:
+            python-version: '3.8'
+
+        - name: Build wheels for macOS
+          uses: joerick/cibuildwheel@v1.10.0
+          env:
+            CIBW_SKIP: ${{ matrix.cibw_skip_python }}
+            CC: /usr/local/opt/llvm/bin/clang
+            CXX: /usr/local/opt/llvm/bin/clang++
+            CPPFLAGS: "-fopenmp"
+            CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
+            CXXFLAGS: "-I/usr/local/opt/libomp/include"
+            LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
+
+        - name: Upload wheels
+          uses: actions/upload-artifact@v2
+          with:
+            path: ./wheelhouse/*.whl
+
+    build_macos12_wheels:
+      name: Build wheels on ${{ matrix.os }}
+      runs-on: ${{ matrix.os }}
+      strategy:
+        fail-fast: false
+        matrix:
+          os: [macos-10.12]
+          cibw_build_python: [cp38-*]
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Install OpenMP for macOS
+          if: runner.os == 'macOS'
+          run: brew install libomp
+
+        - uses: actions/setup-python@v2
+          name: Install Python
+          with:
+            python-version: '3.8'
+
+        - name: Build wheels for macOS
+          uses: joerick/cibuildwheel@v1.10.0
+          env:
+            CIBW_BUILD: ${{ matrix.cibw_build_python }}
+            CC: /usr/local/opt/llvm/bin/clang
+            CXX: /usr/local/opt/llvm/bin/clang++
+            CPPFLAGS: "-fopenmp"
+            CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
+            CXXFLAGS: "-I/usr/local/opt/libomp/include"
+            LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
+
+        - name: Upload wheels
+          uses: actions/upload-artifact@v2
+          with:
+            path: ./wheelhouse/*.whl
+
+    build_sdist:
+        name: Build source distribution
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+
+          - uses: actions/setup-python@v2
+            name: Install Python
+            with:
+              python-version: '3.8'
+
+          - name: Install Libraries
+            run: |
+              python -m pip install --upgrade pip wheel
+              python -m pip install numpy
+              python -m pip install cython
+              python -m pip install pytest
+
+          - name: Build sdist
+            run: python setup.py sdist
+
+          - name: Install Package
+            run: python -m pip install dist/drforest-*
+
+          - name: Run Tests
+            run: python -m pip pytest
+
+          - uses: actions/upload-artifact@v2
+            with:
+              path: dist/*.tar.gz
