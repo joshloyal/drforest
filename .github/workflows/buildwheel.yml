@@ -19,11 +19,11 @@ jobs:
 
       - name: Install BLAS and LAPACK
         run: |
-            sudo apt-get install libblas-dev liblapack-dev libopenblas-base libopenblas-dev
-            sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
-            sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
-            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
-            ls /lib/x86_64-linux-gnu
+            sudo apt-get install libblas-dev liblapack-dev
+            #sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
+            #sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
+            #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
+            #ls /lib/x86_64-linux-gnu
             #ld -lblas --verbose
             #ld -llapack --verbose
 
