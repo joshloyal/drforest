@@ -22,7 +22,8 @@ jobs:
             sudo apt-get install libblas-dev liblapack-dev
             sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
             sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
-            ls /usr/lib
+            ld -lblas --verbose
+            ld -llapack --verbose
 
       - uses: actions/setup-python@v2
         name: Install Python
