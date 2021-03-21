@@ -20,8 +20,8 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            dpkg -L libblas3
-            dpkg -L liblapack3
+            sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0 /usr/lib/libblas.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0 /usr/lib/liblapack.so
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -32,7 +32,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          LDFLAGS: "-L/usr/local/lib/ -L/usr/lib"
+          LDFLAGS: "-L/usr/lib"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
