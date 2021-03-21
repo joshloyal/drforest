@@ -20,8 +20,10 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            sudo update-alternatives --list libblas.so.3
-            sudo update-alternatives --list liblapack.so.3
+            dpkg -L libblas
+            dpkg -L liblapack
+            #sudo update-alternatives --list libblas.so.3
+            #sudo update-alternatives --list liblapack.so.3
 
       - uses: actions/setup-python@v2
         name: Install Python
