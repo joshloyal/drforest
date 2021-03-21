@@ -22,6 +22,7 @@ jobs:
             sudo apt-get install libblas-dev liblapack-dev
             sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
             sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
             #ld -lblas --verbose
             #ld -llapack --verbose
 
@@ -34,7 +35,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          LDFLAGS: "-L/lib/x86_64-linux-gnu/"
+          LD_LIBRARY_FLAGS: "-L/lib/x86_64-linux-gnu/"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
