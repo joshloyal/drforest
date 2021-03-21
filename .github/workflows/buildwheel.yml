@@ -13,13 +13,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v2
 
       - name: Install BLAS and LAPACK
         run: |
-            sudo apt-get install libblas-dev liblapack-dev
+            sudo apt-get install libblas-dev liblapack-dev libopenblas-base libopenblas-dev
             sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
             sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
             export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib/x86_64-linux-gnu
