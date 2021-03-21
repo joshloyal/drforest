@@ -29,6 +29,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
+          LDFLAGS: "-L/usr/local -L/usr/lib"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
@@ -46,7 +47,6 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install OpenMP for macOS
-        if: runner.os == 'macOS'
         run: brew install libomp
 
       - uses: actions/setup-python@v2
@@ -81,7 +81,6 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install OpenMP for macOS
-        if: runner.os == 'macOS'
         run: brew install libomp
 
       - uses: actions/setup-python@v2
@@ -119,8 +118,9 @@ jobs:
         - name: Install Libraries
           run: |
             python -m pip install --upgrade pip wheel
-            python -m pip install numpy
-            python -m pip install cython
+            #python -m pip install numpy
+            #python -m pip install cython
+            python -m pip install -r requirements.txt
             python -m pip install pytest
 
         - name: Build sdist
