@@ -91,7 +91,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # fit the dimension reduction forest
 drforest = DimensionReductionForestRegressor(
-    n_estimators=500, min_samples_leaf=3, n_jobs=-1).fit(X, y)
+    n_estimators=500, min_samples_leaf=3, n_jobs=-1).fit(X_train, y_train)
 ```
 
 To make predictions on a new data set, we simply call `predict`. Note that the
