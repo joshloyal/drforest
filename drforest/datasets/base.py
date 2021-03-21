@@ -14,7 +14,7 @@ def load_data(module_path, data_file_name, is_classification=True):
         data = np.empty((n_samples, n_features))
 
         if is_classification:
-            target_dtype = np.int
+            target_dtype = int
         else:
             target_dtype = np.float64
         target = np.empty((n_samples,), dtype=target_dtype)

@@ -20,8 +20,9 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.9.0 /usr/lib/libblas.so
-            sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.9.0 /usr/lib/liblapack.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/blas/libblas.so.3 /usr/lib/libblas.so
+            sudo ln -s /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3 /usr/lib/liblapack.so
+            ls /usr/lib
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -32,111 +33,108 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          LDFLAGS: "-L/usr/lib"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
 
-  build_macos15_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-10.15]
-    steps:
-      - uses: actions/checkout@v2
+  #build_macos15_wheels:
+  #  name: Build wheels on ${{ matrix.os }}
+  #  runs-on: ${{ matrix.os }}
+  #  strategy:
+  #    fail-fast: false
+  #    matrix:
+  #      os: [macos-10.15]
+  #  steps:
+  #    - uses: actions/checkout@v2
 
-      - name: Install OpenMP for macOS
-        run: brew install libomp
+  #    - name: Install OpenMP for macOS
+  #      run: brew install libomp
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.8'
+  #    - uses: actions/setup-python@v2
+  #      name: Install Python
+  #      with:
+  #        python-version: '3.8'
 
-      - name: Build wheels for macOS
-        uses: joerick/cibuildwheel@v1.10.0
-        env:
-          CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          CC: /usr/local/opt/llvm/bin/clang
-          CXX: /usr/local/opt/llvm/bin/clang++
-          CPPFLAGS: "-fopenmp"
-          CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
-          CXXFLAGS: "-I/usr/local/opt/libomp/include"
-          LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
+  #    - name: Build wheels for macOS
+  #      uses: joerick/cibuildwheel@v1.10.0
+  #      env:
+  #        CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
+  #        CC: /usr/local/opt/llvm/bin/clang
+  #        CXX: /usr/local/opt/llvm/bin/clang++
+  #        CPPFLAGS: "-fopenmp"
+  #        CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
+  #        CXXFLAGS: "-I/usr/local/opt/libomp/include"
+  #        LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
+  #    - name: Upload wheels
+  #      uses: actions/upload-artifact@v2
+  #      with:
+  #        path: ./wheelhouse/*.whl
 
-  build_macos12_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [macos-10.12]
-    steps:
-      - uses: actions/checkout@v2
+  #build_macos12_wheels:
+  #  name: Build wheels on ${{ matrix.os }}
+  #  runs-on: ${{ matrix.os }}
+  #  strategy:
+  #    fail-fast: false
+  #    matrix:
+  #      os: [macos-10.12]
+  #  steps:
+  #    - uses: actions/checkout@v2
 
-      - name: Install OpenMP for macOS
-        run: brew install libomp
+  #    - name: Install OpenMP for macOS
+  #      run: brew install libomp
 
-      - uses: actions/setup-python@v2
-        name: Install Python
-        with:
-          python-version: '3.8'
+  #    - uses: actions/setup-python@v2
+  #      name: Install Python
+  #      with:
+  #        python-version: '3.8'
 
-      - name: Build wheels for macOS
-        uses: joerick/cibuildwheel@v1.10.0
-        env:
-          CIBW_BUILD: cp38-*
-          CC: /usr/local/opt/llvm/bin/clang
-          CXX: /usr/local/opt/llvm/bin/clang++
-          CPPFLAGS: "-fopenmp"
-          CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
-          CXXFLAGS: "-I/usr/local/opt/libomp/include"
-          LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
+  #    - name: Build wheels for macOS
+  #      uses: joerick/cibuildwheel@v1.10.0
+  #      env:
+  #        CIBW_BUILD: cp38-*
+  #        CC: /usr/local/opt/llvm/bin/clang
+  #        CXX: /usr/local/opt/llvm/bin/clang++
+  #        CPPFLAGS: "-fopenmp"
+  #        CFLAGS: "-Wno-implicit-function-declaration -I/usr/local/opt/libomp/include"
+  #        CXXFLAGS: "-I/usr/local/opt/libomp/include"
+  #        LDFLAGS: "-Wl,-rpath,/usr/local/opt/libomp/lib -L/usr/local/opt/libomp/lib -lomp"
 
-      - name: Upload wheels
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
+  #    - name: Upload wheels
+  #      uses: actions/upload-artifact@v2
+  #      with:
+  #        path: ./wheelhouse/*.whl
 
-  build_sdist:
-      name: Build source distribution
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
+  #build_sdist:
+  #    name: Build source distribution
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v2
 
-        - uses: actions/setup-python@v2
-          name: Install Python
-          with:
-            python-version: '3.8'
+  #      - uses: actions/setup-python@v2
+  #        name: Install Python
+  #        with:
+  #          python-version: '3.8'
 
-        - name: Install Libraries
-          run: |
-            python -m pip install --upgrade pip wheel
-            #python -m pip install numpy
-            #python -m pip install cython
-            python -m pip install -r requirements.txt
-            python -m pip install pytest
+  #      - name: Install Libraries
+  #        run: |
+  #          python -m pip install --upgrade pip wheel
+  #          python -m pip install -r requirements.txt
+  #          python -m pip install pytest
 
-        - name: Build sdist
-          run: python setup.py sdist
+  #      - name: Build sdist
+  #        run: python setup.py sdist
 
-        - name: Install Package
-          run: python -m pip install dist/drforest-*
+  #      - name: Install Package
+  #        run: python -m pip install dist/drforest-*
 
-        - name: Run Tests
-          run: |
-            mv drforest src
-            python -m pytest
+  #      - name: Run Tests
+  #        run: |
+  #          mv drforest src
+  #          python -m pytest
 
-        - uses: actions/upload-artifact@v2
-          with:
-            path: dist/*.tar.gz
+  #      - uses: actions/upload-artifact@v2
+  #        with:
+  #          path: dist/*.tar.gz
