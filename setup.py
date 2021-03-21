@@ -109,7 +109,7 @@ def cythonize_source(source, cython_cov=False):
 def make_extension(ext_name, macros=[]):
     ext_path = ext_name.replace('.', os.path.sep) + '.cpp'
     include_dirs = [numpy.get_include(), ARMADILLO_INC, ".", "./src"]
-    library_dirs = ['/usr/lib']
+    library_dirs = ['/usr/lib', '/lib/x86_64-linux-gnu']
     if get_include():
         include_dirs = [get_include()] + include_dirs
 
