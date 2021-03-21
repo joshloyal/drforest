@@ -20,10 +20,7 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            sudo find / -name libblas
-            sudo find / -name liblapack
-            #sudo update-alternatives --list libblas.so.3
-            #sudo update-alternatives --list liblapack.so.3
+            dpkg -L libblas
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -34,7 +31,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          LDFLAGS: "-L/usr/local/lib/"
+          LDFLAGS: "-L/usr/local/lib/ -L/usr/lib"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2
@@ -135,7 +132,9 @@ jobs:
           run: python -m pip install dist/drforest-*
 
         - name: Run Tests
-          run: python -m pytest
+          run: |
+            mv drforest src
+            python -m pytest
 
         - uses: actions/upload-artifact@v2
           with:
