@@ -92,11 +92,19 @@ X_train, X_test, y_train, y_test = train_test_split(
 # fit the dimension reduction forest
 drforest = DimensionReductionForestRegressor(
     n_estimators=500, min_samples_leaf=3, n_jobs=-1).fit(X, y)
+```
 
-# predict on the test set and compare with the out-of-bag (OOB) estimate
+To make predictions on a new data set, we simply call `predict`. Note that the
+dimension reduction forestalso calculate out-of-bag (OOB)
+mean squared error (MSE), which is useful when an external test set is
+not available:
+```python
+# predict on the test set
 y_pred = drforest.predict(X_test)
 print('Test MSE: {:.2f}'.format(mean_squared_error(y_test, y_pred)))
 >>> Test MSE: 3.79
+
+# compare with the out-of-bag (OOB) estimate
 print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
 >>> OOB MSE: 4.13
 ```
