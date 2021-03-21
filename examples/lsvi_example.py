@@ -51,8 +51,8 @@ drforest.fit(X_train, y_train)
 
 y_pred = drforest.predict(X_test)
 
-print('Test MSE: {:.2f}'.format(mean_squared_error(y_test, y_pred)))
-print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
+print(f'Test MSE: {mean_squared_error(y_test, y_pred):.2f}')
+print(f'OOB MSE: {drforest.oob_mse_:.2f}')
 
 
 importances = drforest.local_subspace_importance(X_test, n_jobs=-1)

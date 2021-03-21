@@ -20,8 +20,7 @@ jobs:
       - name: Install BLAS and LAPACK
         run: |
             sudo apt-get install libblas-dev liblapack-dev
-            ls /usr/lib
-            ls /usr/local
+            ls /usr/local/lib
             #sudo update-alternatives --list libblas.so.3
             #sudo update-alternatives --list liblapack.so.3
 
@@ -34,7 +33,7 @@ jobs:
         uses: joerick/cibuildwheel@v1.10.0
         env:
           CIBW_SKIP: cp27-* cp35-* pp* *-manylinux_i686
-          LDFLAGS: "-L/usr/lib/libblas -L/usr/lib/liblapack"
+          LDFLAGS: "-L/usr/local/lib/"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v2

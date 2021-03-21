@@ -101,11 +101,13 @@ not available:
 ```python
 # predict on the test set
 y_pred = drforest.predict(X_test)
-print('Test MSE: {:.2f}'.format(mean_squared_error(y_test, y_pred)))
+
+# MSE on the test set
+print(f'Test MSE: {mean_squared_error(y_test, y_pred):.2f}')
 >>> Test MSE: 3.79
 
 # compare with the out-of-bag (OOB) estimate
-print('OOB MSE: {:.2f}'.format(drforest.oob_mse_))
+print(f'OOB MSE: {drforest.oob_mse_:.2f}')
 >>> OOB MSE: 4.13
 ```
 
