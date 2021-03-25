@@ -9,11 +9,16 @@
 This package provides the statistical estimation methods for dimension reduction forests and local subspace variable importances described in "Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
 
 BibTeX reference to cite, if you use this package:
-<!--```bibtex
+
+```bibtex
 @article{loyal2021drforest,
+    title = {Dimension Reduction Forests: Local Variable Importance using Structured Random Forests},
+    author = {Joshua Daniel Loyal, Ruoqing Zhu, Yifan Cui, Xin Zhang},
+    year = {2021},
+    journal = {arXiv preprint arXiv:2103.13233}
 }
 ```
---->
+
 
 Background
 ----------
