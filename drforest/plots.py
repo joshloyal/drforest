@@ -139,7 +139,7 @@ def plot_local_importance_histogram(
     return g
 
 
-def plot_single_importance(imp_x, figsize=(10, 12), rotation=None, ax=None):
+def plot_single_importance(imp_x, feature_names=None, figsize=(10, 12), rotation=None, ax=None):
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:
@@ -159,8 +159,12 @@ def plot_single_importance(imp_x, figsize=(10, 12), rotation=None, ax=None):
     ax.tick_params(axis='y', labelsize=16)
     ax.tick_params(axis='x', labelsize=16)
     ax.set_xticks(np.arange(n_features))
-    ax.set_xticklabels(
-        ['Feature {}'.format(i + 1) for i in range(n_features)],
-        rotation=rotation)
+
+    if feature_names is None:
+        ax.set_xticklabels(feature_names, rotation=rotation)
+    else:
+        ax.set_xticklabels(
+            ['Feature {}'.format(i + 1) for i in range(n_features)],
+            rotation=rotation)
 
     return ax

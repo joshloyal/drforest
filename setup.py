@@ -117,7 +117,7 @@ def make_extension(ext_name, macros=[]):
         ext_name,
         sources=[ext_path] + get_sources(),
         include_dirs=include_dirs,
-        extra_compile_args=["-O3", "-fPIC", "-std=c++14", "-fopenmp"],
+        extra_compile_args=["-O3", "-fPIC", "-std=c++17", "-fopenmp"],
         extra_link_args=["-fopenmp"],
         define_macros=macros,
         libraries=['blas', 'lapack'],
