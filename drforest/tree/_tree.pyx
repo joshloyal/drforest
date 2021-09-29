@@ -97,6 +97,10 @@ cdef class DimensionReductionTree:
         def __get__(self):
             return self._get_node_ndarray()['weighted_n_node_samples']
 
+    property node_count:
+        def __get__(self):
+            return deref(self.tree).num_nodes()
+
     def apply(self, np.ndarray[np.double_t, ndim=2] X):
         cdef mat X_mat = to_arma_mat(X)
         cdef uvec indices
@@ -193,6 +197,7 @@ def dimension_reduction_tree(np.ndarray[np.double_t, ndim=2] X,
                              int max_features=-1,
                              int max_depth=10,
                              int min_samples_leaf=2,
+                             bool use_original_features=False,
                              int seed=42):
     cdef mat X_mat = to_arma_mat(X)
     cdef vec y_vec = to_arma_vec(y)
@@ -203,6 +208,7 @@ def dimension_reduction_tree(np.ndarray[np.double_t, ndim=2] X,
                                           max_features,
                                           num_slices, max_depth,
                                           min_samples_leaf,
+                                          use_original_features,
                                           seed)
 
     return DimensionReductionTree.init(tree)

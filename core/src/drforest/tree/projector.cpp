@@ -5,7 +5,9 @@
 namespace drforest {
 
     DimensionReductionProjector::DimensionReductionProjector(
-        const int num_slices) : num_slices_(num_slices) {}
+        const int num_slices, const bool use_original_features) :
+            num_slices_(num_slices),
+            use_original_features_(use_original_features) {}
 
     std::pair<arma::mat, arma::mat> DimensionReductionProjector::get_directions(
                                             const arma::mat &X,
@@ -15,7 +17,7 @@ namespace drforest {
         // determine DR directions.
         arma::mat Z;
         arma::mat directions;
-        if (X.n_rows < X.n_cols) {
+        if (X.n_rows < X.n_cols || use_original_features_) {
             // return raw features and perform a cart split on all of them
             Z = X;
             directions = arma::eye(X.n_cols, X.n_cols);

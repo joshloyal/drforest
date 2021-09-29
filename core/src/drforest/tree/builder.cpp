@@ -99,7 +99,8 @@ namespace drforest {
             arma::mat &X, arma::vec &y,
             arma::vec &sample_weight,
             int max_features, int num_slices, int max_depth,
-            size_t min_samples_leaf, uint seed) {
+            size_t min_samples_leaf, bool use_original_features,
+            uint seed) {
         // sort X, y in terms of y.
         arma::uvec y_order = arma::stable_sort_index(y);
         y = y.rows(y_order);
@@ -111,7 +112,7 @@ namespace drforest {
             std::make_shared<drforest::DimensionReductionSplitter>(
                 X, y, sample_weight, max_features,
                 min_samples_leaf, min_samples_leaf,
-                num_slices, seed);
+                num_slices, use_original_features, seed);
 
         TreeBuilder builder(splitter, max_depth, min_samples_leaf);
 

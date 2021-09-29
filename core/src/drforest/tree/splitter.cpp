@@ -13,6 +13,7 @@ namespace drforest {
             const int min_samples_leaf,
             const int min_weight_leaf,
             const int num_slices,
+            const bool use_original_features,
             const uint seed) :
             X_(X),
             y_(y),
@@ -20,10 +21,11 @@ namespace drforest {
             max_features_(max_features),
             min_samples_leaf_(min_samples_leaf),
             min_weight_leaf_(min_weight_leaf),
-            projector_(num_slices),
+            projector_(num_slices, use_original_features),
             start_(0),
             sampler_(X.n_cols, seed),
-            screener_(max_features, min_samples_leaf, min_weight_leaf) {
+            screener_(max_features, min_samples_leaf, min_weight_leaf),
+            use_original_features_(use_original_features) {
         // make sure max features does not exceed the number of features
         if (max_features_ < 0 || max_features_ > X.n_cols) {
             max_features_ = X.n_cols;
@@ -165,13 +167,16 @@ namespace drforest {
             // sample_[start:best.pos] + sample_[best.pos:end] are
             // ordered in y
 
-            // sort beginning of array
-            std::sort(samples_.begin() + start_,
-                      samples_.begin() + best.pos);
+            // Not necessary for axis-aligned splitting
+            if (!use_original_features_) {
+                // sort beginning of array
+                std::sort(samples_.begin() + start_,
+                          samples_.begin() + best.pos);
 
-            // sort end of array
-            std::sort(samples_.begin() + best.pos,
-                      samples_.begin() + end_);
+                // sort end of array
+                std::sort(samples_.begin() + best.pos,
+                          samples_.begin() + end_);
+            }
 
             // update and store impurity statistics
             criterion_->reset();

@@ -4,7 +4,8 @@ from sklearn.utils import check_random_state
 
 
 __all__ = ['make_cubic', 'make_quadratic', 'make_simulation1',
-           'make_simulation2', 'make_simulation3', 'make_simulation4']
+           'make_simulation2', 'make_simulation3', 'make_simulation4',
+           'make_simulation5']
 
 
 def make_cubic(n_samples=500, n_features=10, n_informative=2,
@@ -260,6 +261,38 @@ def make_simulation4(n_samples=1000, correlated_features=True,
     beta2 = np.array([-2, 1, -4, 3, 1, 2, 0, 0, 0, 0]) / np.sqrt(35)
     beta3 = np.array([0, 0, 0, 0, 2, -1, 2, 1, 2, 1]) / np.sqrt(15)
     beta4 = np.array([0, 0, 0, 0, 0, 0, -1, -1, 1, 1]) / 2
+
+    y = np.dot(X, beta1) * np.dot(X, beta2) ** 2
+    y += np.dot(X, beta3) * np.dot(X, beta4)
+    y += 0.5 * rng.normal(size=y.shape)
+
+    if return_projection:
+        B = np.c_[beta1, beta2, beta3, beta4]
+        P = np.dot(B, np.dot(np.linalg.pinv(np.dot(B.T, B)), B.T))
+        return X, y, P, B
+
+    return X, y
+
+
+def make_simulation5(n_samples=1000, correlated_features=True,
+                     return_projection=False, random_state=123):
+    rng = check_random_state(random_state)
+
+    n_features = 2
+    if correlated_features:
+        mean = np.zeros(n_features)
+        cov = np.fromfunction(lambda i, j: 0.5 ** np.abs(i -j),
+                              (n_features, n_features))
+        X = rng.multivariate_normal(mean, cov,
+                                    size=n_samples)
+    else:
+        X = rng.randn(n_samples, n_features)
+
+    # construct true betas
+    beta1 = np.array([1, 3]) / np.sqrt(10)
+    beta2 = np.array([-2, 1]) / np.sqrt(5)
+    beta3 = np.array([3, -4]) / np.sqrt(25)
+    beta4 = np.array([-1, -1]) / np.sqrt(2)
 
     y = np.dot(X, beta1) * np.dot(X, beta2) ** 2
     y += np.dot(X, beta3) * np.dot(X, beta4)

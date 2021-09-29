@@ -5,7 +5,8 @@
 namespace drforest {
     class DimensionReductionProjector {
     public:
-        DimensionReductionProjector(const int num_slices);
+        DimensionReductionProjector(
+            const int num_slices, const bool use_original_features);
 
         ~DimensionReductionProjector() {};
 
@@ -26,5 +27,6 @@ namespace drforest {
 
     private:
         int num_slices_;
+        bool use_original_features_;
     };
 }

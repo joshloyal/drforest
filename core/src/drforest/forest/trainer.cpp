@@ -52,7 +52,7 @@ namespace drforest {
                 std::make_shared<drforest::DimensionReductionSplitter>(
                     X, y, sample_weight, max_features_,
                     min_samples_leaf_, min_samples_leaf_,
-                    num_slices_, random_states.at(t));
+                    num_slices_, false, random_states.at(t));
 
             // build the tree
             TreeBuilder builder(splitter, max_depth_, min_samples_leaf_);
@@ -140,7 +140,7 @@ namespace drforest {
                 std::make_shared<drforest::DimensionReductionSplitter>(
                     X_null, y, sample_weight, max_features_,
                     min_samples_leaf_, min_samples_leaf_,
-                    num_slices_, random_states.at(t));
+                    num_slices_, false, random_states.at(t));
 
             // build the tree
             TreeBuilder builder(splitter, max_depth_, min_samples_leaf_);

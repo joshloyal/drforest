@@ -49,6 +49,7 @@ namespace drforest {
                                    const int min_samples_leaf=2,
                                    const int min_weight_leaf=2,
                                    const int num_slices=10,
+                                   const bool use_original_features=false,
                                    const uint seed=123);
 
         ~DimensionReductionSplitter() {};
@@ -79,6 +80,7 @@ namespace drforest {
         int max_features_;
         int min_samples_leaf_;
         int min_weight_leaf_;
+        bool use_original_features_;
 
         // The samples vector `samples_` is mainted by the Splitter such that
         // the samples contained in the node are sorted by the target y.
