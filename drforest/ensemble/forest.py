@@ -11,7 +11,20 @@ from sklearn.utils.validation import check_is_fitted
 from ._forest import dimension_reduction_forest
 from .feature_importance import permutation_importance
 
-__all__ = ['DimensionReductionForestRegressor']
+__all__ = ['DimensionReductionForestRegressor', 'error_curve']
+
+
+def error_curve(forest, X, y):
+    n_estimators = forest.n_estimators
+
+    y_pred = np.zeros(X.shape[0])
+    err = np.zeros(n_estimators)
+    for i in range(n_estimators):
+        tree_y_pred = forest.estimators_[i].predict(X)
+        y_pred += (tree_y_pred - y_pred) / (i + 1)
+        err[i] = mean_squared_error(y, y_pred)
+
+    return err
 
 
 def leaf_node_kernel(X_leaves, Y_leaves=None):
@@ -20,7 +33,7 @@ def leaf_node_kernel(X_leaves, Y_leaves=None):
 
 
 def local_direction(x0, X_train, weights, n_directions=1):
-    """Calculate the local subspace variable importance at x0."""
+    """Calculate the local principal direction at x0."""
     # filter for data points with non-zero weights
     nonzero = weights != 0
     X_nonzero = X_train[nonzero] - x0
@@ -42,7 +55,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     dimension reduction trees that use sufficient dimension reduction (SDR)
     techniques to approximate a locally adaptive kernel. Furthermore, DRFs
     leverage this adaptivity to estimate a local variable importance measure
-    known as local subspace variable importance (LSVI).
+    known as the local principal direction (LPD).
 
     Dimension reduction trees use a combinatoin of Sliced Inverse Regression
     (SIR) [2] and Sliced Average Variance Estimation (SAVE) [3] to estimate a
@@ -406,8 +419,8 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         return self.forest_.apply(X, self.n_jobs)
 
-    def local_subspace_importance(self, X, n_jobs=1):
-        """Calculate the local subspace variable importance at each point in X.
+    def local_principal_direction(self, X, n_jobs=1):
+        """Calculate the local principal direction at each point in X.
 
         Parameters
         ----------
@@ -420,10 +433,10 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         Returns
         -------
-        local_importances : ndarray of shape (n_samples, n_features)
-            The local subspace variable importance (LSVI) at each point x in X.
-            An LSVI is interpreted as the one-dimensional subpsace that most
-            influences teh regression function at x.
+        local_directions : ndarray of shape (n_samples, n_features)
+            The local principal direction (LPD) at each point x in X.
+            An LPD is interpreted as the one-dimensional subpsace that most
+            influences the regression function at x.
         """
         check_is_fitted(self)
 

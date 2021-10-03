@@ -29,21 +29,16 @@ for i, n in enumerate(sample_sizes):
     out_drf[i] = np.median(res)
 
     #res = timeit.repeat(
-    #    "DimensionReductionTreeRegressor(min_samples_leaf=1, max_features=2, max_depth=None).fit(X, y)",
+    #    "SklearnDecisionTreeRegressor(min_samples_leaf=1, max_depth=None).fit(X, y)",
     #    setup=setup_str.format(n), number=1, repeat=n_reps)
-    #out_drf_screen[i] = np.median(res)
-
-    res = timeit.repeat(
-        "SklearnDecisionTreeRegressor(min_samples_leaf=1, max_depth=None).fit(X, y)",
-        setup=setup_str.format(n), number=1, repeat=n_reps)
-    out_skrf[i] = np.median(res)
+    #out_skrf[i] = np.median(res)
 
 
 fig, ax = plt.subplots(figsize=(18, 4), ncols=2, sharey=True)
 ax[0].plot(sample_sizes, out_drf, 'ko-', label='Dimension Reduction Tree')
 #ax[0].plot(sample_sizes, out_drf_screen, 'bo-', label='Dimension Reduction Tree [max_features]')
 ax[0].plot(sample_sizes, out_rf, 'ks--', label='Axis-Aligned Decision Tree')
-ax[0].plot(sample_sizes, out_skrf, 'k^:', label='Axis-Aligned Decision Tree (Scikit-Learn)')
+#ax[0].plot(sample_sizes, out_skrf, 'k^:', label='Axis-Aligned Decision Tree (Scikit-Learn)')
 ax[0].set_ylabel('Time [sec]', fontsize=12)
 ax[0].set_xlabel('Sample Size', fontsize=12)
 #ax[0].set_yticklabels(ax[0].get_yticklabels(), fontsize=10)
@@ -76,21 +71,16 @@ for i, n in enumerate(feature_sizes):
         setup=setup_str.format(n), number=1, repeat=n_reps)
     out_drf[i] = np.median(res)
 
-    #res = timeit.repeat(
-    #    "DimensionReductionTreeRegressor(min_samples_leaf=1, max_features=0.2, max_depth=None).fit(X, y)",
-    #    setup=setup_str.format(n), number=1, repeat=n_reps)
-    #out_drf_screen[i] = np.median(res)
-
-    res = timeit.repeat(
-        "SklearnDecisionTreeRegressor(min_samples_leaf=1, max_depth=None).fit(X, y)",
-        setup=setup_str.format(n), number=1, repeat=n_reps)
-    out_skrf[i] = np.median(res)
+   # res = timeit.repeat(
+   #     "SklearnDecisionTreeRegressor(min_samples_leaf=1, max_depth=None).fit(X, y)",
+   #     setup=setup_str.format(n), number=1, repeat=n_reps)
+   # out_skrf[i] = np.median(res)
 
 
 ax[1].plot(feature_sizes, out_drf, 'ko-', label='Dimension Reduction Tree')
 #ax[1].plot(feature_sizes, out_drf_screen, 'bo-', label='Dimension Reduction Tree [max_features]')
 ax[1].plot(feature_sizes, out_rf, 'ks--', label='Axis-Aligned Decision Tree')
-ax[1].plot(feature_sizes, out_skrf, 'k^:', label='Axis-Aligned Decision Tree (Scikit-Learn)')
+#ax[1].plot(feature_sizes, out_skrf, 'k^:', label='Axis-Aligned Decision Tree (Scikit-Learn)')
 ax[1].set_xlabel('Number of Features', fontsize=12)
 #ax[1].set_yticklabels(ax[1].get_yticklabels(), fontsize=10)
 #ax[1].set_xticklabels(ax[1].get_xticklabels(), fontsize=10)
@@ -98,4 +88,4 @@ ax[1].legend(loc='upper left', frameon=False, bbox_to_anchor=(1, 1), fontsize=12
 
 plt.tick_params(axis='both', which='major', labelsize=12)
 plt.subplots_adjust(right=0.8)
-fig.savefig('bench_sim1.pdf', dpi=300, bbox_inches='tight')
+fig.savefig('bench_sim1.png', dpi=300, bbox_inches='tight')
