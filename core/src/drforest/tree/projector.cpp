@@ -26,8 +26,8 @@ namespace drforest {
             auto [Z_save, dir_save] = get_save(X, y, sample_weight);
             auto [Z_sir, dir_sir] = get_sir(X, y, sample_weight);
 
-            Z = arma::join_rows(Z_save, Z_sir);
-            directions = arma::join_cols(dir_save, dir_sir);
+            Z = arma::join_rows(Z_save.col(0), Z_sir.col(0));
+            directions = arma::join_cols(dir_save.row(0), dir_sir.row(0));
         }
 
         return {Z, directions};
