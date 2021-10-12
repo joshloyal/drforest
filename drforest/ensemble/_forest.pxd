@@ -4,8 +4,8 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.memory cimport shared_ptr
 
-from drforest.armadillo cimport mat, umat, vec
-from drforest.armadillo cimport to_arma_mat, to_uint_ndarray, to_arma_vec
+from drforest.armadillo cimport mat, umat, vec, uvec
+from drforest.armadillo cimport to_arma_mat, to_uint_ndarray, to_arma_vec, to_arma_uvec
 from drforest.armadillo cimport to_1d_ndarray, to_ndarray
 
 from drforest.tree._tree cimport Tree, DimensionReductionTree
@@ -28,6 +28,8 @@ cdef extern from "drforest.h" namespace "drforest" nogil:
 
     shared_ptr[RandomForest] train_random_forest(mat& X,
                                                  vec& y,
+                                                 uvec& numeric_features,
+                                                 uvec& categorical_features,
                                                  size_t num_trees,
                                                  int max_features,
                                                  size_t num_slices,

@@ -98,6 +98,7 @@ namespace drforest {
     std::shared_ptr<Tree> build_dimension_reduction_tree(
             arma::mat &X, arma::vec &y,
             arma::vec &sample_weight,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
             int max_features, int num_slices, int max_depth,
             size_t min_samples_leaf, bool use_original_features,
             uint seed) {
@@ -106,11 +107,12 @@ namespace drforest {
         y = y.rows(y_order);
         X = X.rows(y_order);
         sample_weight = sample_weight.rows(y_order);
+        FeatureInfo feat_info(numeric_features, categorical_features);
 
         // use the DR spliting rule
         std::shared_ptr<drforest::NodeSplitter> splitter =
             std::make_shared<drforest::DimensionReductionSplitter>(
-                X, y, sample_weight, max_features,
+                X, y, sample_weight, feat_info, max_features,
                 min_samples_leaf, min_samples_leaf,
                 num_slices, use_original_features, seed);
 

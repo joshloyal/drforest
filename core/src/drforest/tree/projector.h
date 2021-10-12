@@ -13,7 +13,8 @@ namespace drforest {
         std::pair<arma::mat, arma::mat> get_directions(
                                             const arma::mat &X,
                                             const arma::vec &y,
-                                            const WeightVec &sample_weight);
+                                            const WeightVec &sample_weight,
+                                            const FeatureTypes &feat_types);
 
         std::pair<arma::mat, arma::mat> get_sir(
                 const arma::mat &X,

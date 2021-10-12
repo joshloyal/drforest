@@ -9,7 +9,7 @@ import numpy as np
 cimport numpy as np
 
 from drforest.armadillo cimport mat, umat, vec, ivec, uvec
-from drforest.armadillo cimport to_arma_mat, to_arma_vec
+from drforest.armadillo cimport to_arma_mat, to_arma_vec, to_arma_uvec
 from drforest.armadillo cimport to_ndarray, to_uint_ndarray, to_1d_ndarray
 from drforest.armadillo cimport to_1d_int_ndarray, to_1d_uint_ndarray
 
@@ -53,6 +53,8 @@ cdef extern from "drforest.h" namespace "drforest" nogil:
     shared_ptr[Tree] build_dimension_reduction_tree(mat& X,
                                                     vec& y,
                                                     vec& sample_weight,
+                                                    uvec& numeric_features,
+                                                    uvec& categorical_features,
                                                     int max_features,
                                                     int num_slices,
                                                     int max_depth,

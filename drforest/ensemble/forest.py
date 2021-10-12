@@ -174,6 +174,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                  max_features="auto",
                  min_samples_leaf=3,
                  n_slices=10,
+                 categorical_cols=None,
                  oob_mse=True,
                  store_X_y=True,
                  random_state=42,
@@ -183,6 +184,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
         self.n_slices = n_slices
+        self.categorical_cols = categorical_cols
         self.oob_mse = oob_mse
         self.random_state = random_state
         self.store_X_y = store_X_y
@@ -304,8 +306,20 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                                     self.min_samples_leaf))
             min_samples_leaf = int(np.ceil(self.min_samples_leaf * n_samples))
 
+        if self.categorical_cols is not None:
+            self.categorical_features_ = np.asarray(
+                self.categorical_cols, dtype=int)
+            self.numeric_features_ = np.asarray(
+                [i for i in np.arange(n_features) if
+                    i not in self.categorical_features_],
+                dtype=int)
+        else:
+            self.categorical_features_ = np.asarray([], dtype=int)
+            self.numeric_features_ = np.arange(n_features)
+
         self.forest_ = dimension_reduction_forest(
-            X, y, num_trees=self.n_estimators,
+            X, y, self.numeric_features_, self.categorical_features_,
+            num_trees=self.n_estimators,
             max_features=max_features,
             num_slices=self.n_slices,
             max_depth=max_depth,

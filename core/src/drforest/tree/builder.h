@@ -36,6 +36,7 @@ namespace drforest {
     // Builds a tree using the data and given hyperparameters
     std::shared_ptr<Tree> build_dimension_reduction_tree(
             arma::mat &X, arma::vec &y, arma::vec &sample_weight,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
             int max_features=-1, int num_slices=10, int max_depth=-1,
             size_t min_samples_leaf=2, bool use_original_features=false, uint seed=42);
 

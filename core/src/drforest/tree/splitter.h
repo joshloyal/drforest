@@ -45,6 +45,7 @@ namespace drforest {
     public:
         DimensionReductionSplitter(const DataMat &X, const TargetVec &y,
                                    const WeightVec &sample_weight,
+                                   FeatureInfo &feat_info,
                                    const int max_features=-1,
                                    const int min_samples_leaf=2,
                                    const int min_weight_leaf=2,
@@ -75,6 +76,7 @@ namespace drforest {
         const DataMat &X_;
         const TargetVec &y_;
         const WeightVec &sample_weight_;
+        FeatureInfo &feat_info_;
 
         // hyper-parameters for splitting algorithm
         int max_features_;

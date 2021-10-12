@@ -124,6 +124,16 @@ cdef np.ndarray[np.int_t, ndim=1] to_1d_int_ndarray(const ivec& arma_vec):
     return np_array
 
 
+cdef uvec to_arma_uvec(np.ndarray[np.int_t, ndim=1] np_array):
+    """Converts a 1d numpy array to an arma::uvec. Data is copied if
+    the array does not own its data.
+    """
+    if not np_array.flags.owndata:
+        np_array = np_array.copy(order='F')
+
+    return uvec(<uword*> np_array.data, np_array.shape[0], False, True)
+
+
 cdef np.ndarray[np.int_t, ndim=1] to_1d_uint_ndarray(const uvec& arma_vec):
     """Converts an arma::vec to a 1d numpy array. Currently, a copy is
     always made.

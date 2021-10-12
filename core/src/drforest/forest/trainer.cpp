@@ -24,7 +24,8 @@ namespace drforest {
     }
 
     std::shared_ptr<RandomForest> RandomForestTrainer::train(arma::mat &X,
-                                                             arma::vec &y) {
+                                                             arma::vec &y,
+                                                             FeatureInfo &feat_info) {
         // begin by sorting the data
         arma::uvec y_order = arma::stable_sort_index(y);
         y = y.rows(y_order);
@@ -50,7 +51,7 @@ namespace drforest {
             // initialize a splitter
             std::shared_ptr<drforest::NodeSplitter> splitter =
                 std::make_shared<drforest::DimensionReductionSplitter>(
-                    X, y, sample_weight, max_features_,
+                    X, y, sample_weight, feat_info, max_features_,
                     min_samples_leaf_, min_samples_leaf_,
                     num_slices_, false, random_states.at(t));
 
@@ -100,7 +101,8 @@ namespace drforest {
     }
 
     std::shared_ptr<RandomForest> RandomForestTrainer::train_permuted(
-            arma::mat &X, arma::vec &y, uint feature_id) {
+            arma::mat &X, arma::vec &y, FeatureInfo &feat_info,
+            uint feature_id) {
         // begin by sorting the data
         arma::uvec y_order = arma::stable_sort_index(y);
         y = y.rows(y_order);
@@ -138,7 +140,7 @@ namespace drforest {
             // initialize a splitter
             std::shared_ptr<drforest::NodeSplitter> splitter =
                 std::make_shared<drforest::DimensionReductionSplitter>(
-                    X_null, y, sample_weight, max_features_,
+                    X_null, y, sample_weight, feat_info, max_features_,
                     min_samples_leaf_, min_samples_leaf_,
                     num_slices_, false, random_states.at(t));
 
@@ -158,30 +160,37 @@ namespace drforest {
     }
 
     std::shared_ptr<RandomForest> train_random_forest(
-            arma::mat &X, arma::vec &y, size_t num_trees, int max_features,
-            size_t num_slices, int max_depth,
-            size_t min_samples_leaf, bool oob_error,
-            int num_threads, uint seed) {
-
-        RandomForestTrainer trainer(num_trees, max_features,
-                                    num_slices, max_depth, min_samples_leaf,
-                                    oob_error, num_threads, seed);
-
-        return trainer.train(X, y);
-    }
-
-    std::shared_ptr<RandomForest> train_permuted_random_forest(
-            arma::mat &X, arma::vec &y, uint feature_id,
+            arma::mat &X, arma::vec &y,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
             size_t num_trees, int max_features,
             size_t num_slices, int max_depth,
             size_t min_samples_leaf, bool oob_error,
             int num_threads, uint seed) {
 
+        FeatureInfo feat_info(numeric_features, categorical_features);
+
         RandomForestTrainer trainer(num_trees, max_features,
                                     num_slices, max_depth, min_samples_leaf,
                                     oob_error, num_threads, seed);
 
-        return trainer.train_permuted(X, y, feature_id);
+        return trainer.train(X, y, feat_info);
+    }
+
+    std::shared_ptr<RandomForest> train_permuted_random_forest(
+            arma::mat &X, arma::vec &y, uint feature_id,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
+            size_t num_trees, int max_features,
+            size_t num_slices, int max_depth,
+            size_t min_samples_leaf, bool oob_error,
+            int num_threads, uint seed) {
+
+        FeatureInfo feat_info(numeric_features, categorical_features);
+
+        RandomForestTrainer trainer(num_trees, max_features,
+                                    num_slices, max_depth, min_samples_leaf,
+                                    oob_error, num_threads, seed);
+
+        return trainer.train_permuted(X, y, feat_info, feature_id);
     }
 
 

@@ -18,12 +18,14 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
                  max_depth=None,
                  max_features="auto",
                  min_samples_leaf=3,
+                 categorical_cols=None,
                  sdr_algorithm=None,
                  random_state=123):
         self.n_slices = n_slices
         self.max_features = max_features
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
+        self.categorical_cols = categorical_cols
         self.sdr_algorithm = sdr_algorithm
         self.random_state = random_state
 
@@ -75,9 +77,21 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
         if sample_weight is None:
             sample_weight = np.ones(n_samples, dtype=np.float64)
 
+        if self.categorical_cols is not None:
+            self.categorical_features_ = np.asarray(
+                self.categorical_cols, dtype=int)
+            self.numeric_features_ = np.asarray(
+                [i for i in np.arange(n_features) if
+                    i not in self.categorical_features_],
+                dtype=int)
+        else:
+            self.categorical_features_ = np.asarray([], dtype=int)
+            self.numeric_features_ = np.arange(n_features)
+
         self.tree_ = dimension_reduction_tree(
             X, y, sample_weight,
-            num_slices=self.n_slices,
+            self.numeric_features_,
+            self.categorical_features_,
             max_features=max_features,
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
@@ -169,6 +183,7 @@ class DecisionTreeRegressor(BaseEstimator, RegressorMixin):
 
         self.tree_ = dimension_reduction_tree(
             X, y, sample_weight,
+            np.asarray([], dtype=int), np.asarray([], dtype=int),
             num_slices=self.n_slices,
             max_features=max_features,
             max_depth=max_depth,

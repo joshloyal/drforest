@@ -80,6 +80,8 @@ cdef class DimensionReductionForest:
 
 def dimension_reduction_forest(np.ndarray[np.double_t, ndim=2] X,
                                np.ndarray[np.double_t, ndim=1] y,
+                               np.ndarray[np.int_t, ndim=1] numeric_features,
+                               np.ndarray[np.int_t, ndim=1] categorical_features,
                                int num_trees=50,
                                int max_features=-1,
                                int num_slices=10,
@@ -90,9 +92,12 @@ def dimension_reduction_forest(np.ndarray[np.double_t, ndim=2] X,
                                int seed=42):
     cdef mat X_mat = to_arma_mat(X)
     cdef vec y_vec = to_arma_vec(y)
+    cdef uvec num_features = to_arma_uvec(numeric_features)
+    cdef uvec cat_features = to_arma_uvec(categorical_features)
     cdef shared_ptr[RandomForest] forest
 
-    forest = train_random_forest(X_mat, y_vec, num_trees, max_features,
+    forest = train_random_forest(X_mat, y_vec, num_features, cat_features,
+                                 num_trees, max_features,
                                  num_slices, max_depth, min_samples_leaf,
                                  oob_error, n_jobs, seed)
 
