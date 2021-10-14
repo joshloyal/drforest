@@ -64,28 +64,31 @@ train, test = train_test_split(np.arange(X.shape[0]), test_size=0.2, random_stat
 X_train, X_test, y_train, y_test = X_std[train], X_std[test], y[train], y[test]
 
 # tune and train a dimension reduction forest (DRF)
-errors = np.zeros(3)
-drforests = []
-min_sample_leaves = [3, 5, 10]
-for i, min_sample_leaf in enumerate(min_sample_leaves):
-    drforest = DimensionReductionForestRegressor(
-        n_estimators=500,
-        min_samples_leaf=min_sample_leaf,
-        random_state=42,
-        store_X_y=True,
-        n_jobs=-1)
-    drforest.fit(X_train, y_train)
-    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
-    drforests.append(drforest)
+#errors = np.zeros(3)
+#drforests = []
+#min_sample_leaves = [3, 5, 10]
+#for i, min_sample_leaf in enumerate(min_sample_leaves):
+#    drforest = DimensionReductionForestRegressor(
+#        n_estimators=500,
+#        categorical_cols=[4],
+#        min_samples_leaf=min_sample_leaf,
+#        random_state=42,
+#        store_X_y=True,
+#        n_jobs=-1)
+#    drforest.fit(X_train, y_train)
+#    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
+#    drforests.append(drforest)
 
-min_sample_leaf = min_sample_leaves[np.argmin(errors)]
+#min_sample_leaf = min_sample_leaves[np.argmin(errors)]
+min_sample_leaf = 3
 print('min_sample_leaf = ', min_sample_leaf)
 
 # re-train on full dataset
 drforest = DimensionReductionForestRegressor(
     n_estimators=500,
     min_samples_leaf=min_sample_leaf,
-    random_state=42,
+    categorical_cols=[4],
+    random_state=123,
     store_X_y=True,
     oob_mse=True,
     n_jobs=-1)
