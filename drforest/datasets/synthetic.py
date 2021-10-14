@@ -5,7 +5,7 @@ from sklearn.utils import check_random_state
 
 __all__ = ['make_cubic', 'make_quadratic', 'make_simulation1',
            'make_simulation2', 'make_simulation3', 'make_simulation4',
-           'make_simulation5']
+           'make_simulation5', 'make_simulation6']
 
 
 def make_cubic(n_samples=500, n_features=10, n_informative=2,
@@ -304,3 +304,27 @@ def make_simulation5(n_samples=1000, correlated_features=True,
         return X, y, P, B
 
     return X, y
+
+
+def make_simulation6(n_samples=1000, random_state=123):
+    rng = check_random_state(random_state)
+
+    # continuous covariates
+    n_features = 3
+    X = rng.randn(n_samples, n_features)
+
+    # categorical covariates
+    W = rng.choice([0, 1], n_samples)
+
+    # construct true betas
+    beta = np.array([1, -2, 1]) / np.sqrt(6)
+    gamma = np.array([-1, -1, 2]) / np.sqrt(6)
+    coef = np.array([[2, -2],
+                     [1, 2]])
+    intercept = np.array([1, 2])
+
+    y = (np.dot(X, beta) ** 2) * coef[0][W] + np.dot(X, gamma) * coef[1][W]
+    y += intercept[W]
+    y += 0.5 * rng.normal(size=y.shape)
+
+    return np.c_[W, X], y

@@ -1,4 +1,7 @@
 import csv
+import pandas as pd
+import os
+
 from os.path import dirname
 
 from drforest.datasets.base import load_data
@@ -19,8 +22,8 @@ def load_athletes():
 
     ===============     ===============
     Samples total                   202
-    Dimensionality                    8
-    Features             real, positive
+    Dimensionality                    9
+    Features             real and categorical, positive
     ===============     ===============
 
     Returns
@@ -37,6 +40,10 @@ def load_athletes():
         Exercise 23: 788-794.
     """
     module_path = dirname(__file__)
-    data, target = load_data(module_path, 'athletes.csv',
-                             is_classification=False)
-    return data, target
+
+    data = pd.read_csv(
+        os.path.join(module_path, 'data', 'athletes_categorical.csv'))
+    y = data.pop('LBM').values
+    X = data.values
+
+    return X, y
