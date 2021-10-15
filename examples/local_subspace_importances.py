@@ -15,10 +15,10 @@ from sklearn.metrics.pairwise import euclidean_distances
 
 
 n_samples = 2000
-n_features = 5
+n_features = 10
 n_points = 100
 signal_to_noise = 3
-n_iter = 50
+n_iter = 10
 OUT_DIR = 'lsvi_results'
 
 if not os.path.exists(OUT_DIR):
@@ -110,14 +110,14 @@ def run_lsvi_sim(dataset_name):
         indices = rng.choice(np.arange(n_samples), replace=False, size=n_points)
         pred_dirs = []
         for forest in forests:
-            pred_dirs.append(forest.local_subspace_importance(
+            pred_dirs.append(forest.local_principal_direction(
                 X[indices], n_jobs=-1))
 
         pred_dirs_max = []
         if n_features > 5:
             for forest in forest_max:
                 pred_dirs_max.append(
-                    forest.local_subspace_importance(
+                    forest.local_principal_direction(
                         X[indices], n_jobs=-1))
         else:
             pred_dirs_max = pred_dirs
@@ -250,7 +250,7 @@ def run_lsvi_sim(dataset_name):
             'Global SIR': sir_metrics[:, 0],
             'Local SIR': local_sir_metrics[:, 0]})
     data.to_csv(os.path.join(OUT_DIR, '{}_p{}_frob.csv'.format(
-        dataset_name, n_features), index=False))
+        dataset_name, n_features)), index=False)
 
     data = pd.DataFrame({
             'DRF' : drf_metrics[:, 1],
@@ -259,7 +259,7 @@ def run_lsvi_sim(dataset_name):
             'Global SIR': sir_metrics[:, 1],
             'Local SIR': local_sir_metrics[:, 1]})
     data.to_csv(os.path.join(OUT_DIR, '{}_p{}_trcor.csv'.format(
-        dataset_name, n_features), index=False))
+        dataset_name, n_features)), index=False)
 
 
 if __name__ == '__main__':

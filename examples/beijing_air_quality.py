@@ -56,6 +56,7 @@ pal[cols[-1]] = rgb2hex(get_cmap('tab10')(6))
 
 X = data[cols].values
 y = data['PM25_Concentration'].values
+month_col = 4
 
 scaler =  StandardScaler().fit(X)
 X_std = scaler.transform(X)
@@ -64,37 +65,36 @@ train, test = train_test_split(np.arange(X.shape[0]), test_size=0.2, random_stat
 X_train, X_test, y_train, y_test = X_std[train], X_std[test], y[train], y[test]
 
 # tune and train a dimension reduction forest (DRF)
-#errors = np.zeros(3)
-#drforests = []
-#min_sample_leaves = [3, 5, 10]
-#for i, min_sample_leaf in enumerate(min_sample_leaves):
-#    drforest = DimensionReductionForestRegressor(
-#        n_estimators=500,
-#        categorical_cols=[4],
-#        min_samples_leaf=min_sample_leaf,
-#        random_state=42,
-#        store_X_y=True,
-#        n_jobs=-1)
-#    drforest.fit(X_train, y_train)
-#    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
-#    drforests.append(drforest)
+errors = np.zeros(3)
+drforests = []
+min_sample_leaves = [3, 5, 10]
+for i, min_sample_leaf in enumerate(min_sample_leaves):
+    drforest = DimensionReductionForestRegressor(
+        n_estimators=500,
+        categorical_cols=[month_col],
+        min_samples_leaf=min_sample_leaf,
+        random_state=42,
+        store_X_y=True,
+        n_jobs=-1)
+    drforest.fit(X_train, y_train)
+    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
+    drforests.append(drforest)
 
-#min_sample_leaf = min_sample_leaves[np.argmin(errors)]
-min_sample_leaf = 3
+min_sample_leaf = min_sample_leaves[np.argmin(errors)]
 print('min_sample_leaf = ', min_sample_leaf)
 
 # re-train on full dataset
 drforest = DimensionReductionForestRegressor(
     n_estimators=500,
     min_samples_leaf=min_sample_leaf,
-    categorical_cols=[4],
-    random_state=123,
+    categorical_cols=[month_col],
+    random_state=42,
     store_X_y=True,
     oob_mse=True,
     n_jobs=-1)
 drforest.fit(X_std, y)
 r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
-print('R2 = ', r_sq)
+print('DRF R2 = ', r_sq)
 
 # extract local principal directions
 importances = drforest.local_principal_direction(X_std, n_jobs=-1)
@@ -102,7 +102,6 @@ importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 
 # visualize LPD's as a function of month and their marginal distributions
 fig, ax = plt.subplots(figsize=(20, 6), ncols=2, sharey=True)
-month_col = 4
 loading_medians = []
 loading_up = []
 loading_low = []
@@ -177,6 +176,8 @@ forest = RandomForestRegressor(
     max_features=None,
     n_jobs=-1)
 forest.fit(X_std, y)
+r_sq = 1 - np.mean((forest.predict(X_std) - y) ** 2) / np.var(y)
+print('RF R2 = ', r_sq)
 
 
 # global permutation-based importance
