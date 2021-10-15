@@ -306,12 +306,19 @@ def make_simulation5(n_samples=1000, correlated_features=True,
     return X, y
 
 
-def make_simulation6(n_samples=1000, random_state=123):
+def make_simulation6(n_samples=1000, correlated_features=True, random_state=123):
     rng = check_random_state(random_state)
 
     # continuous covariates
     n_features = 3
-    X = rng.randn(n_samples, n_features)
+    if correlated_features:
+        mean = np.zeros(n_features)
+        cov = np.fromfunction(lambda i, j: 0.5 ** np.abs(i -j),
+                              (n_features, n_features))
+        X = rng.multivariate_normal(mean, cov,
+                                    size=n_samples)
+    else:
+        X = rng.randn(n_samples, n_features)
 
     # categorical covariates
     W = rng.choice([0, 1], n_samples)
@@ -332,12 +339,19 @@ def make_simulation6(n_samples=1000, random_state=123):
     return np.c_[W, X], y
 
 
-def make_simulation7(n_samples=1000, random_state=123):
+def make_simulation7(n_samples=1000, correlated_features=True, random_state=123):
     rng = check_random_state(random_state)
 
     # continuous covariates
     n_features = 3
-    X = rng.randn(n_samples, n_features)
+    if correlated_features:
+        mean = np.zeros(n_features)
+        cov = np.fromfunction(lambda i, j: 0.5 ** np.abs(i -j),
+                              (n_features, n_features))
+        X = rng.multivariate_normal(mean, cov,
+                                    size=n_samples)
+    else:
+        X = rng.randn(n_samples, n_features)
 
     # categorical covariates
     W = rng.choice([0, 1], n_samples)
