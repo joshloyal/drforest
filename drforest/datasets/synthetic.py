@@ -325,13 +325,9 @@ def make_simulation6(n_samples=1000, correlated_features=True, random_state=123)
 
     # construct true betas
     beta = np.array([1, -2, 1]) / np.sqrt(6)
-    gamma = np.array([-1, -1, 2]) / np.sqrt(6)
-    #coef = np.array([[2, -2],
-    #                 [1, 2]])
     coef = np.array([2, -2])
     intercept = np.array([1, 2])
 
-    #y = (np.dot(X, beta) ** 2) * coef[0][W] + np.dot(X, gamma) * coef[1][W]
     y = (np.dot(X, beta) ** 2) * coef[W]
     y += intercept[W]
     y += 0.5 * rng.normal(size=y.shape)

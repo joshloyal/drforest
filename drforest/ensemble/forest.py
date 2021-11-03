@@ -10,6 +10,8 @@ from sklearn.utils.validation import check_is_fitted
 
 from ._forest import dimension_reduction_forest
 from .feature_importance import permutation_importance
+from .sparse_pca import truncated_power_method
+
 
 __all__ = ['DimensionReductionForestRegressor', 'error_curve']
 
@@ -32,7 +34,7 @@ def leaf_node_kernel(X_leaves, Y_leaves=None):
     return 1 - pairwise_distances(X_leaves, Y=Y_leaves, metric='hamming')
 
 
-def local_direction(x0, X_train, weights, n_directions=1):
+def local_direction(x0, X_train, weights, k=None):
     """Calculate the local principal direction at x0."""
     # filter for data points with non-zero weights
     nonzero = weights != 0
@@ -43,9 +45,11 @@ def local_direction(x0, X_train, weights, n_directions=1):
     X_nonzero -= (w * X_nonzero).sum(axis=0) / np.sum(w)
     M = np.dot(X_nonzero.T, X_nonzero * w) / np.sum(w)
 
-    eigval, eigvec = np.linalg.eigh(M)
+    if k is None:
+        eigval, eigvec = np.linalg.eigh(M)
+        return eigvec[:, 0]
 
-    return eigvec[:, :n_directions]
+    return truncated_power_method(np.linalg.pinv(M), k=k)
 
 
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
@@ -433,7 +437,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         return self.forest_.apply(X, self.n_jobs)
 
-    def local_principal_direction(self, X, n_jobs=1):
+    def local_principal_direction(self, X, exclude_cols=None, k=None, n_jobs=1):
         """Calculate the local principal direction at each point in X.
 
         Parameters
@@ -461,9 +465,16 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         # extract kernel weights on in-sample data points
         weights = self(X, self.X_fit_)
 
-        directions = Parallel(n_jobs=n_jobs)(
-            delayed(local_direction)(
-            X[i], self.X_fit_, weights[i]) for
-            i in range(X.shape[0]))
+        if exclude_cols is None:
+            directions = Parallel(n_jobs=n_jobs)(
+                delayed(local_direction)(
+                X[i], self.X_fit_, weights[i], k) for
+                i in range(X.shape[0]))
+        else:
+            col_ids = [p for p in range(X.shape[1]) if p not in exclude_cols]
+            directions = Parallel(n_jobs=n_jobs)(
+                delayed(local_direction)(
+                X[i][col_ids], self.X_fit_[:, col_ids], weights[i], k) for
+                i in range(X.shape[0]))
 
         return np.squeeze(np.asarray(directions))
