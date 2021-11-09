@@ -95,9 +95,13 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         point at any depth will only be considered if it leaves at least
         ``min_samples_leaf`` training samples in each leaf and right branches.
 
-    n_slices : int, optional (default=10)
+    n_slices : int, string, optional (default=10)
         The number of slices used when calculating the inverse regression
         curve. Truncated to at most the number of unique values of ``y``.
+
+        - If int, then estimate SIR/SAVE using `n_slices` slices.
+        - If "sqrt", then estimate SIR/SAVE using `n_slices=sqrt(n_samples)`
+          slices.
 
     oob_mse : bool, optional (default=True)
         Whether to use out-of-bag samples to estimate the MSE of unseen data.
@@ -310,6 +314,14 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                                     self.min_samples_leaf))
             min_samples_leaf = int(np.ceil(self.min_samples_leaf * n_samples))
 
+        if isinstance(self.n_slices, str):
+            if self.n_slices == "sqrt":
+                n_slices = min(2, int(np.sqrt(n_samples)))
+            else:
+                raise ValueError("Unrecognized value for n_slices")
+        else:
+            n_slices = self.n_slices
+
         if self.categorical_cols is not None:
             self.categorical_features_ = np.asarray(
                 self.categorical_cols, dtype=int)
@@ -325,7 +337,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
             X, y, self.numeric_features_, self.categorical_features_,
             num_trees=self.n_estimators,
             max_features=max_features,
-            num_slices=self.n_slices,
+            num_slices=n_slices,
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
             oob_error=self.oob_mse,
