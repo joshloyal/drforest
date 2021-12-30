@@ -83,5 +83,9 @@ cdef np.ndarray[np.double_t, ndim=1] to_1d_ndarray(const vec& arma_vec)
 # convert from an arma::ivec to a numpy ndarray
 cdef np.ndarray[np.int_t, ndim=1] to_1d_int_ndarray(const ivec& arma_vec)
 
+
+# convert an numpy ndarray to an arma::vec
+cdef uvec to_arma_uvec(np.ndarray[np.int_t, ndim=1] np_array)
+
 # convert from an arma::uvec to a numpy ndarray
 cdef np.ndarray[np.int_t, ndim=1] to_1d_uint_ndarray(const uvec& arma_vec)

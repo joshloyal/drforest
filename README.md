@@ -6,7 +6,7 @@
 
 *Author: [Joshua D. Loyal](https://joshloyal.github.io/)*
 
-This package provides the statistical estimation methods for dimension reduction forests and local subspace variable importances described in "Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
+This package provides the statistical estimation methods for dimension reduction forests and local principal directions described in "Dimension Reduction Forests: Local Variable Importance using Structured Random Forests".
 
 BibTeX reference to cite, if you use this package:
 
@@ -29,8 +29,8 @@ sufficient dimension reduction (SDR). In particular, we take the perspective
 of random forests as adaptive kernel methods. We pair random forests with
 sufficient dimension reduction to estimate a nonparametric kernel that adapts
 to the regression functions local contours. We then leverage this adaptivity
-to estimate a type of local variable importance we call
-*local subspace variable importance*. The result is a powerful model-free
+to estimate a type of local variable importance we call the
+*local principal direction*. The result is a powerful model-free
 predictive method that is more accurate than naively combining random forests
 with global SDR methods.
 
@@ -117,51 +117,51 @@ print(f'OOB MSE: {drforest.oob_mse_:.2f}')
 ```
 
 An important capability of dimension reduction forests is there ability to
-produce a meaningful local variable importance measure known as
-*local subspace variable importance*.  This is a feature importance assigned
+produce a meaningful local variable importance measure known as the
+*local principal direction*.  This is a feature importance assigned
 to each prediction point. We can visualize the distribution of these importances
 on the test set as follows:
 
 ```python
-from drforest.plots import plot_local_importance
+from drforest.plots import plot_local_direction
 
-# extract local importances at each point in the test set
-importances = drforest.local_subspace_importance(X_test, n_jobs=-1)
+# extract the local principal direction at each point in the test set
+directions = drforest.local_principal_direction(X_test, n_jobs=-1)
 
-# plot the marginal distributions of each importance measure
-plot_local_importance(importances)
+# plot the marginal distributions of each LPD's loading
+plot_local_direction(directions)
 ```
 
 <p align="center">
-<img src="/images/lsvi_example.png" alt="local subspace variable importances" width="600">
+<img src="/images/lsvi_example.png" alt="local principal dircections" width="600">
 </p>
 
 From this plot, we clearly see that Feature 1 and Feature 2 are significant, while
 Features 3, Feature 4, and Feature 5 do not play a role in predicting the outcome.
-Finally, we can see how the feature importance varies thoughout the input space.
+Finally, we can see how the feature importance varies throughout the input space.
 
 ```python
 fig, ax = plt.subplots(figsize=(16, 18), ncols=2, sharey=True)
 
-# calculate importance at x = (-1.5, 1.5, 0, 0, 0)
-imp_x = drforest.local_subspace_importance(np.array([-1.5, 1.5, 0, 0, 0]))
-imp_x *= np.sign(imp_x[0])  # force loading of first component positive
+# calculate local principal direction at x = (-1.5, 1.5, 0, 0, 0)
+lpd_x = drforest.local_principal_direction(np.array([-1.5, 1.5, 0, 0, 0]))
+lpd_x *= np.sign(lpd_x[0])  # force loading of first component positive
 
-# plot importance
-plot_single_importance(imp_x, ax=ax[0], rotation=30)
+# plot local principal direction
+plot_single_direction(lpd_x, ax=ax[0], rotation=30)
 ax[0].set_title(r'$x = (-1.5, 1.5, 0, 0, 0)$', fontsize=16)
 
-# calculate importance at x = (0.5, -0.5, 0, 0, 0)
-imp_x = drforest.local_subspace_importance(np.array([0.5, -0.5, 0, 0, 0]))
-imp_x *= np.sign(imp_x[0])  # force loading of first component postitive
+# calculate local principal direction at x = (0.5, -0.5, 0, 0, 0)
+lpd_x = drforest.local_principal_direction(np.array([0.5, -0.5, 0, 0, 0]))
+lpd_x *= np.sign(lpd_x[0])  # force loading of first component postitive
 
 # plot importance
-plot_single_importance(imp_x, ax=ax[1], rotation=30)
+plot_single_direction(imp_x, ax=ax[1], rotation=30)
 ax[1].set_title(r'$x = (0.5, -0.5, 0, 0, 0)$', fontsize=16)
 ```
 
 <p align="center">
-<img src="/images/lsvi_local.png" alt="local subspace variable importances" width="600">
+<img src="/images/lsvi_local.png" alt="local principal directions" width="600">
 </p>
 
 From these plots, we conclude that at x = (-1.5, 1.5, 0, 0, 0), simultaneously
@@ -174,10 +174,10 @@ Simulation Studies and Real-Data Applications
 This package includes the simulation studies and real-data applications found in
 the main article:
 
-* A simple example of local variable importance on a synthetic dataset: ([here](/examples/random_forest_importances.py)).
+* A simple example of local principal directions on a synthetic dataset: ([here](/examples/random_forest_importances.py)).
 * A comparison with other methods on synthetic data: ([here](/examples/synthetic_data.py)).
-* A evaluation of the performance of local subspace variable importance estimates on synthetic data: ([here](/examples/local_subspace_importances.py)).
+* A evaluation of the performance of local principal direction estimates on synthetic data: ([here](/examples/local_subspace_importances.py)).
 * A comparison with other methods on real regression problems: ([here](/examples/real_data.py)).
-* An appliction using LSVIs to infer meteorological factors contributing to  pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
+* An appliction using LPDs to infer meteorological factors contributing to  pollution in Beijing, China ([here](/examples/beijing_air_quality.py)).
 
 We also provide a few [jupyter notebooks](/notebooks) that demonstrate the use of this package.

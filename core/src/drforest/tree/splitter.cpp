@@ -9,21 +9,25 @@ namespace drforest {
             const DataMat &X,
             const TargetVec &y,
             const WeightVec &sample_weight,
+            FeatureInfo &feat_info,
             const int max_features,
             const int min_samples_leaf,
             const int min_weight_leaf,
             const int num_slices,
+            const bool use_original_features,
             const uint seed) :
             X_(X),
             y_(y),
             sample_weight_(sample_weight),
+            feat_info_(feat_info),
             max_features_(max_features),
             min_samples_leaf_(min_samples_leaf),
             min_weight_leaf_(min_weight_leaf),
-            projector_(num_slices),
+            projector_(num_slices, use_original_features),
             start_(0),
             sampler_(X.n_cols, seed),
-            screener_(max_features, min_samples_leaf, min_weight_leaf) {
+            screener_(max_features, min_samples_leaf, min_weight_leaf),
+            use_original_features_(use_original_features) {
         // make sure max features does not exceed the number of features
         if (max_features_ < 0 || max_features_ > X.n_cols) {
             max_features_ = X.n_cols;
@@ -56,6 +60,7 @@ namespace drforest {
 
         // sub-sample features going into SIR / SAVE
         arma::uvec feature_ids;
+        FeatureTypes node_feat_types;
         if (max_features_ < X_.n_cols) {
             if (impurity <= 0) {
                 // zero variance node so random sample features
@@ -65,12 +70,16 @@ namespace drforest {
                     node_X, node_y, node_sample_weight, impurity);
             }
             node_X = node_X.cols(feature_ids);
+            node_feat_types = feat_info_.compute_types(feature_ids);
+        } else {
+            node_feat_types = feat_info_.get_types();
         }
 
         // determine directions for splitting
         auto [Z, directions] =  projector_.get_directions(node_X,
                                                           node_y,
-                                                          node_sample_weight);
+                                                          node_sample_weight,
+                                                          node_feat_types);
 
         // CART search over best direction
         SplitRecord split = find_best_split(Z, node_samples, impurity);
@@ -96,6 +105,7 @@ namespace drforest {
         // initialize records to track the best split
         SplitRecord best, current;
         best.is_leaf = true;
+        best.pos = end_;
         current.is_leaf = false;
         best.feature = 0;
         double current_proxy_improvement =
@@ -105,7 +115,10 @@ namespace drforest {
 
         arma::vec Z_col;
         uint p;
+        uint p_next;
         uint p_feature;
+        uint p_feature_next;
+        uint p_feature_prev;
         for (int i = 0; i < Z.n_cols; ++i) {
             // record the current feature
             current.feature = i;
@@ -121,8 +134,22 @@ namespace drforest {
             p = start_;
             p_feature = 0;  // feature array is indexed 0...(start_ - end_ - 1)
             while (p < end_) {
-                p += 1;
-                p_feature += 1;
+                //p += 1;
+                //p_feature += 1;
+
+                // find next unique value in Z_col
+                p_next = p + 1;
+                p_feature_next = p_feature + 1;
+                while (p_next < end_ and Z_col(p_feature_next) <= Z_col(p_feature)) {
+                    p = p_next;
+                    p_feature = p_feature_next;
+                    p_next += 1;
+                    p_feature_next = p_feature + 1;
+                }
+                p = p_next;
+                p_feature_prev = p_feature;
+                p_feature = p_feature_next;
+
                 if (p < end_) {
                     current.pos = p;
 
@@ -147,7 +174,8 @@ namespace drforest {
 
                         // mid-point split is more stable. why?
                         current.threshold =
-                            Z_col(p_feature - 1) / 2 + Z_col(p_feature) / 2;
+                            //Z_col(p_feature - 1) / 2. + Z_col(p_feature) / 2.;
+                            Z_col(p_feature_prev) / 2. + Z_col(p_feature) / 2.;
                         best = current;
                     }
                 }
@@ -165,13 +193,16 @@ namespace drforest {
             // sample_[start:best.pos] + sample_[best.pos:end] are
             // ordered in y
 
-            // sort beginning of array
-            std::sort(samples_.begin() + start_,
-                      samples_.begin() + best.pos);
+            // Not necessary for axis-aligned splitting
+            if (!use_original_features_) {
+                // sort beginning of array
+                std::sort(samples_.begin() + start_,
+                          samples_.begin() + best.pos);
 
-            // sort end of array
-            std::sort(samples_.begin() + best.pos,
-                      samples_.begin() + end_);
+                // sort end of array
+                std::sort(samples_.begin() + best.pos,
+                          samples_.begin() + end_);
+            }
 
             // update and store impurity statistics
             criterion_->reset();

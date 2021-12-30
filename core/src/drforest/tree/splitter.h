@@ -45,10 +45,12 @@ namespace drforest {
     public:
         DimensionReductionSplitter(const DataMat &X, const TargetVec &y,
                                    const WeightVec &sample_weight,
+                                   FeatureInfo &feat_info,
                                    const int max_features=-1,
                                    const int min_samples_leaf=2,
                                    const int min_weight_leaf=2,
                                    const int num_slices=10,
+                                   const bool use_original_features=false,
                                    const uint seed=123);
 
         ~DimensionReductionSplitter() {};
@@ -74,11 +76,13 @@ namespace drforest {
         const DataMat &X_;
         const TargetVec &y_;
         const WeightVec &sample_weight_;
+        FeatureInfo &feat_info_;
 
         // hyper-parameters for splitting algorithm
         int max_features_;
         int min_samples_leaf_;
         int min_weight_leaf_;
+        bool use_original_features_;
 
         // The samples vector `samples_` is mainted by the Splitter such that
         // the samples contained in the node are sorted by the target y.

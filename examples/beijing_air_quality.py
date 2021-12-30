@@ -56,6 +56,7 @@ pal[cols[-1]] = rgb2hex(get_cmap('tab10')(6))
 
 X = data[cols].values
 y = data['PM25_Concentration'].values
+month_col = 4
 
 scaler =  StandardScaler().fit(X)
 X_std = scaler.transform(X)
@@ -70,6 +71,7 @@ min_sample_leaves = [3, 5, 10]
 for i, min_sample_leaf in enumerate(min_sample_leaves):
     drforest = DimensionReductionForestRegressor(
         n_estimators=500,
+        categorical_cols=[month_col],
         min_samples_leaf=min_sample_leaf,
         random_state=42,
         store_X_y=True,
@@ -85,21 +87,21 @@ print('min_sample_leaf = ', min_sample_leaf)
 drforest = DimensionReductionForestRegressor(
     n_estimators=500,
     min_samples_leaf=min_sample_leaf,
+    categorical_cols=[month_col],
     random_state=42,
     store_X_y=True,
     oob_mse=True,
     n_jobs=-1)
 drforest.fit(X_std, y)
 r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
-print('R2 = ', r_sq)
+print('DRF R2 = ', r_sq)
 
-# extract local subspace variable importances
-importances = drforest.local_subspace_importance(X_std, n_jobs=-1)
+# extract local principal directions
+importances = drforest.local_principal_direction(X_std, n_jobs=-1)
 importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 
-# visualize LSVI's as a function of month and their marginal distributions
+# visualize LPD's as a function of month and their marginal distributions
 fig, ax = plt.subplots(figsize=(20, 6), ncols=2, sharey=True)
-month_col = 4
 loading_medians = []
 loading_up = []
 loading_low = []
@@ -134,7 +136,7 @@ ax[1].grid(axis='x')
 
 ax[1].legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=4, facecolor='w')
 ax[1].set_xlabel('Month', fontsize=20)
-ax[1].set_ylabel('LSVI Loadings', fontsize=16)
+ax[1].set_ylabel('LPD Loadings', fontsize=16)
 ax[1].yaxis.set_tick_params(labelleft=True)
 
 imp = pd.melt(pd.DataFrame(importances, columns=cols))
@@ -143,12 +145,12 @@ order = np.argsort(np.var(importances, axis=0))[::-1]
 sns.violinplot(x='variable', y='value', data=imp, order=np.asarray(cols)[order],
                inner='quartile', palette=pal, ax=ax[0], scale='count')
 
-ax[0].set_ylabel('LSVI Loadings', fontsize=18)
+ax[0].set_ylabel('LPD Loadings', fontsize=18)
 ax[0].set_xlabel('')
 ax[0].tick_params(axis='y', labelsize=16)
 ax[0].tick_params(axis='x', labelsize=16)
 
-fig.savefig(os.path.join(OUT_DIR, 'lsvi_month.png'), dpi=300,
+fig.savefig(os.path.join(OUT_DIR, 'lpd_month.png'), dpi=300,
             bbox_inches='tight')
 
 
@@ -174,6 +176,8 @@ forest = RandomForestRegressor(
     max_features=None,
     n_jobs=-1)
 forest.fit(X_std, y)
+r_sq = 1 - np.mean((forest.predict(X_std) - y) ** 2) / np.var(y)
+print('RF R2 = ', r_sq)
 
 
 # global permutation-based importance

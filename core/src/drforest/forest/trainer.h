@@ -14,9 +14,11 @@ namespace drforest {
                             int num_threads=1,
                             uint seed=42);
 
-        std::shared_ptr<RandomForest> train(arma::mat &X, arma::vec &y);
+        std::shared_ptr<RandomForest> train(
+            arma::mat &X, arma::vec &y, FeatureInfo &feat_info);
         std::shared_ptr<RandomForest> train_permuted(
-            arma::mat &X, arma::vec &y, uint feature_id);
+            arma::mat &X, arma::vec &y, FeatureInfo &feat_info,
+            uint feature_id);
 
     private:
         // hyper-parameters
@@ -31,14 +33,18 @@ namespace drforest {
     };
 
     std::shared_ptr<RandomForest> train_random_forest(
-            arma::mat &X, arma::vec &y, size_t num_trees=50,
+            arma::mat &X, arma::vec &y,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
+            size_t num_trees=50,
             int max_features=-1,
             size_t num_slices=10, int max_depth=-1,
             size_t min_samples_leaf=2,
             bool oob_error=false, int num_threads=1, uint seed=42);
 
     std::shared_ptr<RandomForest> train_permuted_random_forest(
-            arma::mat &X, arma::vec &y, uint feature_id,
+            arma::mat &X, arma::vec &y,
+            arma::uvec &numeric_features, arma::uvec &categorical_features,
+            uint feature_id,
             size_t num_trees=50,
             int max_features=-1,
             size_t num_slices=10, int max_depth=-1,

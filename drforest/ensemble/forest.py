@@ -10,8 +10,23 @@ from sklearn.utils.validation import check_is_fitted
 
 from ._forest import dimension_reduction_forest
 from .feature_importance import permutation_importance
+from .sparse_pca import truncated_power_method
 
-__all__ = ['DimensionReductionForestRegressor']
+
+__all__ = ['DimensionReductionForestRegressor', 'error_curve']
+
+
+def error_curve(forest, X, y):
+    n_estimators = forest.n_estimators
+
+    y_pred = np.zeros(X.shape[0])
+    err = np.zeros(n_estimators)
+    for i in range(n_estimators):
+        tree_y_pred = forest.estimators_[i].predict(X)
+        y_pred += (tree_y_pred - y_pred) / (i + 1)
+        err[i] = mean_squared_error(y, y_pred)
+
+    return err
 
 
 def leaf_node_kernel(X_leaves, Y_leaves=None):
@@ -19,8 +34,8 @@ def leaf_node_kernel(X_leaves, Y_leaves=None):
     return 1 - pairwise_distances(X_leaves, Y=Y_leaves, metric='hamming')
 
 
-def local_direction(x0, X_train, weights, n_directions=1):
-    """Calculate the local subspace variable importance at x0."""
+def local_direction(x0, X_train, weights, k=None):
+    """Calculate the local principal direction at x0."""
     # filter for data points with non-zero weights
     nonzero = weights != 0
     X_nonzero = X_train[nonzero] - x0
@@ -30,9 +45,11 @@ def local_direction(x0, X_train, weights, n_directions=1):
     X_nonzero -= (w * X_nonzero).sum(axis=0) / np.sum(w)
     M = np.dot(X_nonzero.T, X_nonzero * w) / np.sum(w)
 
-    eigval, eigvec = np.linalg.eigh(M)
+    if k is None:
+        eigval, eigvec = np.linalg.eigh(M)
+        return eigvec[:, 0]
 
-    return eigvec[:, :n_directions]
+    return truncated_power_method(np.linalg.pinv(M), k=k)
 
 
 class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
@@ -42,7 +59,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
     dimension reduction trees that use sufficient dimension reduction (SDR)
     techniques to approximate a locally adaptive kernel. Furthermore, DRFs
     leverage this adaptivity to estimate a local variable importance measure
-    known as local subspace variable importance (LSVI).
+    known as the local principal direction (LPD).
 
     Dimension reduction trees use a combinatoin of Sliced Inverse Regression
     (SIR) [2] and Sliced Average Variance Estimation (SAVE) [3] to estimate a
@@ -78,9 +95,13 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         point at any depth will only be considered if it leaves at least
         ``min_samples_leaf`` training samples in each leaf and right branches.
 
-    n_slices : int, optional (default=10)
+    n_slices : int, string, optional (default=10)
         The number of slices used when calculating the inverse regression
         curve. Truncated to at most the number of unique values of ``y``.
+
+        - If int, then estimate SIR/SAVE using `n_slices` slices.
+        - If "sqrt", then estimate SIR/SAVE using `n_slices=sqrt(n_samples)`
+          slices.
 
     oob_mse : bool, optional (default=True)
         Whether to use out-of-bag samples to estimate the MSE of unseen data.
@@ -161,6 +182,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                  max_features="auto",
                  min_samples_leaf=3,
                  n_slices=10,
+                 categorical_cols=None,
                  oob_mse=True,
                  store_X_y=True,
                  random_state=42,
@@ -170,6 +192,7 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         self.max_depth = max_depth
         self.min_samples_leaf = min_samples_leaf
         self.n_slices = n_slices
+        self.categorical_cols = categorical_cols
         self.oob_mse = oob_mse
         self.random_state = random_state
         self.store_X_y = store_X_y
@@ -291,10 +314,30 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
                                     self.min_samples_leaf))
             min_samples_leaf = int(np.ceil(self.min_samples_leaf * n_samples))
 
+        if isinstance(self.n_slices, str):
+            if self.n_slices == "sqrt":
+                n_slices = min(2, int(np.sqrt(n_samples)))
+            else:
+                raise ValueError("Unrecognized value for n_slices")
+        else:
+            n_slices = self.n_slices
+
+        if self.categorical_cols is not None:
+            self.categorical_features_ = np.asarray(
+                self.categorical_cols, dtype=int)
+            self.numeric_features_ = np.asarray(
+                [i for i in np.arange(n_features) if
+                    i not in self.categorical_features_],
+                dtype=int)
+        else:
+            self.categorical_features_ = np.asarray([], dtype=int)
+            self.numeric_features_ = np.arange(n_features)
+
         self.forest_ = dimension_reduction_forest(
-            X, y, num_trees=self.n_estimators,
+            X, y, self.numeric_features_, self.categorical_features_,
+            num_trees=self.n_estimators,
             max_features=max_features,
-            num_slices=self.n_slices,
+            num_slices=n_slices,
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
             oob_error=self.oob_mse,
@@ -406,8 +449,8 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         return self.forest_.apply(X, self.n_jobs)
 
-    def local_subspace_importance(self, X, n_jobs=1):
-        """Calculate the local subspace variable importance at each point in X.
+    def local_principal_direction(self, X, exclude_cols=None, k=None, n_jobs=1):
+        """Calculate the local principal direction at each point in X.
 
         Parameters
         ----------
@@ -420,10 +463,10 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
 
         Returns
         -------
-        local_importances : ndarray of shape (n_samples, n_features)
-            The local subspace variable importance (LSVI) at each point x in X.
-            An LSVI is interpreted as the one-dimensional subpsace that most
-            influences teh regression function at x.
+        local_directions : ndarray of shape (n_samples, n_features)
+            The local principal direction (LPD) at each point x in X.
+            An LPD is interpreted as the one-dimensional subpsace that most
+            influences the regression function at x.
         """
         check_is_fitted(self)
 
@@ -434,9 +477,16 @@ class DimensionReductionForestRegressor(BaseEstimator, RegressorMixin):
         # extract kernel weights on in-sample data points
         weights = self(X, self.X_fit_)
 
-        directions = Parallel(n_jobs=n_jobs)(
-            delayed(local_direction)(
-            X[i], self.X_fit_, weights[i]) for
-            i in range(X.shape[0]))
+        if exclude_cols is None:
+            directions = Parallel(n_jobs=n_jobs)(
+                delayed(local_direction)(
+                X[i], self.X_fit_, weights[i], k) for
+                i in range(X.shape[0]))
+        else:
+            col_ids = [p for p in range(X.shape[1]) if p not in exclude_cols]
+            directions = Parallel(n_jobs=n_jobs)(
+                delayed(local_direction)(
+                X[i][col_ids], self.X_fit_[:, col_ids], weights[i], k) for
+                i in range(X.shape[0]))
 
         return np.squeeze(np.asarray(directions))

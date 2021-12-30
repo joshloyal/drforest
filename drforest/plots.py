@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-__all__ = ['plot_local_importance', 'plot_variable_importance',
-           'plot_local_importance_histogram', 'plot_single_importance']
+__all__ = ['plot_local_direction', 'plot_variable_importance',
+           'plot_local_direction_histogram', 'plot_single_direction']
 
 
 def label(x, color, label):
@@ -68,9 +68,9 @@ def plot_variable_importance(importances, plot_type='bar', normalize=False,
     return fig, ax
 
 
-def plot_local_importance(importances, sort_features=False, feature_names=None,
-                          figsize=(10, 6), palette='Set3', scale='count',
-                          inner='quartile'):
+def plot_local_direction(importances, sort_features=False, feature_names=None,
+                         figsize=(10, 6), palette='Set3', scale='count',
+                         inner='quartile'):
     n_features = importances.shape[1]
     if feature_names is None:
         feature_names = ["Feature {}".format(i + 1) for i in range(n_features)]
@@ -88,13 +88,13 @@ def plot_local_importance(importances, sort_features=False, feature_names=None,
 
 
     ax.set_xlabel('')
-    ax.set_ylabel('LSVI Loadings', fontsize=18)
+    ax.set_ylabel('LPD Loadings', fontsize=18)
     ax.tick_params(axis='y', labelsize=16)
     ax.tick_params(axis='x', labelsize=16)
 
     return fig, ax
 
-def plot_local_importance_histogram(
+def plot_local_direction_histogram(
         directions, importances=None, feature_names=None,
         figsize=(10, 6), color='0.3', bins=30):
     """Plot marginal distribution of local subspace variable importances."""
@@ -139,7 +139,8 @@ def plot_local_importance_histogram(
     return g
 
 
-def plot_single_importance(imp_x, feature_names=None, figsize=(10, 12), rotation=None, ax=None):
+def plot_single_direction(
+        imp_x, feature_names=None, figsize=(10, 12), rotation=None, ax=None):
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize)
     else:

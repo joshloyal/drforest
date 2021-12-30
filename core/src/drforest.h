@@ -17,6 +17,7 @@
 #include "drforest/common/macros.h"
 #include "drforest/common/parallel.h"
 #include "drforest/common/typedefs.h"
+#include "drforest/common/data_info.h"
 
 // samplers
 #include "drforest/samplers/bootstrap.h"

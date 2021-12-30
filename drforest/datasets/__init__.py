@@ -1,5 +1,6 @@
 from drforest.datasets.abalone import *
 from drforest.datasets.athletes import *
+from drforest.datasets.diabetes import *
 from drforest.datasets.cpu_small import *
 from drforest.datasets.kin8nm import *
 from drforest.datasets.fishcatch import *
