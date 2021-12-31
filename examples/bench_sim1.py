@@ -4,11 +4,18 @@ import matplotlib.pyplot as plt
 
 
 setup_str = """
+import numpy as np
+
 from sklearn.tree import DecisionTreeRegressor as SklearnDecisionTreeRegressor
 from drforest.tree import DecisionTreeRegressor, DimensionReductionTreeRegressor
 from drforest.datasets import make_simulation1
 
 X, y = make_simulation1(n_samples={0}, n_features=5, noise=1, random_state=1)
+
+# sort
+y_order = np.argsort(y)
+y = y[y_order]
+X = X[y_order, :]
 """
 
 fontsize = 16
@@ -25,7 +32,7 @@ for i, n in enumerate(sample_sizes):
     out_rf[i] = np.median(res)
 
     res = timeit.repeat(
-        "DimensionReductionTreeRegressor(min_samples_leaf=1, max_depth=None).fit(X, y)",
+        "DimensionReductionTreeRegressor(min_samples_leaf=1, max_depth=None, presorted=True).fit(X, y)",
         setup=setup_str.format(n), number=1, repeat=n_reps)
     out_drf[i] = np.median(res)
 
@@ -46,6 +53,7 @@ ax[0, 0].set_ylabel('Time [sec]', fontsize=fontsize)
 #ax[0].set_yticklabels(ax[0].get_yticklabels(), fontsize=14)
 #ax[0].set_xticklabels(ax[0].get_xticklabels(), fontsize=fontsize)
 plt.setp(ax[0, 0].get_yticklabels(), fontsize=fontsize)
+ax[0, 0].legend(loc='upper left', frameon=False, fontsize=fontsize)
 
 ax[1, 0].plot(sample_sizes, out_drf / out_rf, 'k^:', lw=3, ms=10)
 ax[1, 0].set_xlabel('Sample Size', fontsize=fontsize)
@@ -91,7 +99,8 @@ ax[0, 1].plot(feature_sizes, out_rf, 'ks--', lw=3, ms=10, label='Axis-Aligned De
 ax[0, 1].set_title(r'$n = 2000$', fontsize=fontsize)
 #ax[1].set_yticklabels(ax[1].get_yticklabels(), fontsize=10)
 #ax[1].set_xticklabels(ax[1].get_xticklabels(), fontsize=10)
-ax[0, 1].legend(loc='upper left', frameon=False, bbox_to_anchor=(1, 1), fontsize=fontsize)
+#ax[0, 1].legend(loc='upper left', frameon=False, bbox_to_anchor=(1, 1), fontsize=fontsize)
+ax[0, 1].legend(loc='upper left', frameon=False, fontsize=fontsize)
 #secy = ax[1].secondary_yaxis('right')
 #secy.set_ylabel('Ratio', fontsize=fontsize)
 #plt.setp(secy.get_yticklabels(), fontsize=fontsize)

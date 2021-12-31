@@ -60,6 +60,7 @@ cdef extern from "drforest.h" namespace "drforest" nogil:
                                                     int max_depth,
                                                     size_t min_samples_leaf,
                                                     bool use_original_features,
+                                                    bool presorted,
                                                     int seed)
 
 cdef class DimensionReductionTree:

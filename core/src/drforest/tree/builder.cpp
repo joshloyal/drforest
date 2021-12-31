@@ -101,12 +101,14 @@ namespace drforest {
             arma::uvec &numeric_features, arma::uvec &categorical_features,
             int max_features, int num_slices, int max_depth,
             size_t min_samples_leaf, bool use_original_features,
-            uint seed) {
+            bool presorted, uint seed) {
         // sort X, y in terms of y.
-        arma::uvec y_order = arma::stable_sort_index(y);
-        y = y.rows(y_order);
-        X = X.rows(y_order);
-        sample_weight = sample_weight.rows(y_order);
+        if (!presorted) {
+            arma::uvec y_order = arma::stable_sort_index(y);
+            y = y.rows(y_order);
+            X = X.rows(y_order);
+            sample_weight = sample_weight.rows(y_order);
+        }
         FeatureInfo feat_info(numeric_features, categorical_features);
 
         // use the DR spliting rule

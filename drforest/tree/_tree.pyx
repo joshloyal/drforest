@@ -200,6 +200,7 @@ def dimension_reduction_tree(np.ndarray[np.double_t, ndim=2] X,
                              int max_depth=10,
                              int min_samples_leaf=2,
                              bool use_original_features=False,
+                             bool presorted=False,
                              int seed=42):
     cdef mat X_mat = to_arma_mat(X)
     cdef vec y_vec = to_arma_vec(y)
@@ -208,18 +209,13 @@ def dimension_reduction_tree(np.ndarray[np.double_t, ndim=2] X,
     cdef uvec cat_features = to_arma_uvec(categorical_features)
     cdef shared_ptr[Tree] tree
 
-    #if numeric_features is not None:
-    #    num_features = to_arma_uvec(numeric_features)
-
-    #if categorical_features is not None:
-    #    cat_features = to_arma_uvec(categorical_features)
-
     tree = build_dimension_reduction_tree(X_mat, y_vec, sample_weight_vec,
                                           num_features, cat_features,
                                           max_features,
                                           num_slices, max_depth,
                                           min_samples_leaf,
                                           use_original_features,
+                                          presorted,
                                           seed)
 
     return DimensionReductionTree.init(tree)
