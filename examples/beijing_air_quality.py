@@ -1,4 +1,5 @@
 import os
+import itertools
 
 import numpy as np
 import seaborn as sns
@@ -65,29 +66,35 @@ train, test = train_test_split(np.arange(X.shape[0]), test_size=0.2, random_stat
 X_train, X_test, y_train, y_test = X_std[train], X_std[test], y[train], y[test]
 
 # tune and train a dimension reduction forest (DRF)
-errors = np.zeros(3)
-drforests = []
-min_sample_leaves = [3, 5, 10]
-for i, min_sample_leaf in enumerate(min_sample_leaves):
-    drforest = DimensionReductionForestRegressor(
-        n_estimators=500,
-        categorical_cols=[month_col],
-        min_samples_leaf=min_sample_leaf,
-        random_state=42,
-        store_X_y=True,
-        n_jobs=-1)
-    drforest.fit(X_train, y_train)
-    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
-    drforests.append(drforest)
-
-min_sample_leaf = min_sample_leaves[np.argmin(errors)]
-print('min_sample_leaf = ', min_sample_leaf)
-
+#drforests = []
+#min_sample_leaves = [3, 5, 10]
+#n_slices = [10, 100, 500]
+#params = list(itertools.product(min_sample_leaves, n_slices))
+#errors = np.zeros(len(params))
+#for i, (min_sample_leaf, n_slice) in enumerate(params):
+#    drforest = DimensionReductionForestRegressor(
+#        n_estimators=500,
+#        min_samples_leaf=min_sample_leaf,
+#        n_slices=n_slice,
+#        random_state=42,
+#        store_X_y=True,
+#        n_jobs=-1)
+#    drforest.fit(X_train, y_train)
+#    errors[i] = np.mean((y_test -  drforest.predict(X_test)) ** 2)
+#    drforests.append(drforest)
+#
+#min_sample_leaf, n_slice = params[np.argmin(errors)]
+#print('min_sample_leaf = ', min_sample_leaf)
+#print('n_slices = ', n_slice)
+min_sample_leaf = 3
+n_slice = np.sqrt(X.shape[0])
+print(n_slice)
+#n_slice = 200
 # re-train on full dataset
 drforest = DimensionReductionForestRegressor(
     n_estimators=500,
     min_samples_leaf=min_sample_leaf,
-    categorical_cols=[month_col],
+    n_slices=n_slice,
     random_state=42,
     store_X_y=True,
     oob_mse=True,
@@ -97,11 +104,11 @@ r_sq = 1 - np.mean((drforest.predict(X_std) - y) ** 2) / np.var(y)
 print('DRF R2 = ', r_sq)
 
 # extract local principal directions
-importances = drforest.local_principal_direction(X_std, n_jobs=-1)
+importances = drforest.local_principal_direction(X_std, exclude_cols=[month_col], k=3, n_jobs=-1)
 importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 
 # visualize LPD's as a function of month and their marginal distributions
-fig, ax = plt.subplots(figsize=(20, 6), ncols=2, sharey=True)
+fig, ax = plt.subplots(figsize=(20, 6), ncols=2)
 loading_medians = []
 loading_up = []
 loading_low = []
@@ -125,7 +132,7 @@ for p in range(4):
     ax[1].plot(loading_medians[:, p], 'o-', lw=2, label=cols[p], markersize=8,
                linestyle='--')
     ax[1].fill_between(np.arange(12),
-                       loading_low[:, p], loading_up[:, p], alpha=0.2)
+                       loading_low[:, p], loading_up[:, p], edgecolor='k', alpha=0.2)
 
 tick_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -139,6 +146,9 @@ ax[1].set_xlabel('Month', fontsize=20)
 ax[1].set_ylabel('LPD Loadings', fontsize=16)
 ax[1].yaxis.set_tick_params(labelleft=True)
 
+# re-calculate importances with month included for marginal plots
+importances = drforest.local_principal_direction(X_std, n_jobs=-1)
+importances = np.sign(importances[:, 0]).reshape(-1, 1) * importances
 imp = pd.melt(pd.DataFrame(importances, columns=cols))
 
 order = np.argsort(np.var(importances, axis=0))[::-1]
@@ -155,46 +165,46 @@ fig.savefig(os.path.join(OUT_DIR, 'lpd_month.png'), dpi=300,
 
 
 # Also include the variable importance of a random forest
-errors = np.zeros(3)
-forests = []
-min_sample_leaves = [3, 5, 10]
-for i, min_samples_leaf in enumerate(min_sample_leaves):
-    forest = RandomForestRegressor(n_estimators=500,
-                                   min_samples_leaf=min_samples_leaf,
-                                   max_features=None,
-                                   random_state=42,
-                                   n_jobs=-1)
-    forest.fit(X_train, y_train)
-    errors[i] = np.mean((y_test -  forest.predict(X_test)) ** 2)
-    forests.append(forest)
-
-min_sample_leaf = min_sample_leaves[np.argmin(errors)]
-forest = RandomForestRegressor(
-    n_estimators=500,
-    min_samples_leaf=min_sample_leaf,
-    random_state=42,
-    max_features=None,
-    n_jobs=-1)
-forest.fit(X_std, y)
-r_sq = 1 - np.mean((forest.predict(X_std) - y) ** 2) / np.var(y)
-print('RF R2 = ', r_sq)
-
-
-# global permutation-based importance
-fig, ax = plt.subplots(figsize=(18, 6), ncols=2, sharex=True)
-
-forest_imp = permutation_importance(forest, X_std, y, random_state=42)
-forest_imp /= np.sum(forest_imp)
-order = np.argsort(forest_imp)
-ax[0].barh(y=np.arange(5), width=forest_imp[order], color='gray',
-        tick_label=np.asarray(cols)[order], height=0.5)
-ax[0].set_xlabel('RF Variable Importance')
-
-forest_imp = drforest.feature_importances_
-order = np.argsort(forest_imp)
-ax[1].barh(y=np.arange(5), width=forest_imp[order], color='gray',
-        tick_label=np.asarray(cols)[order], height=0.5)
-ax[1].set_xlabel('DRF Variable Importance')
-
-fig.savefig(os.path.join(OUT_DIR, 'airquality_imp.png'),
-           dpi=300, bbox_inches='tight')
+#errors = np.zeros(3)
+#forests = []
+#min_sample_leaves = [3, 5, 10]
+#for i, min_samples_leaf in enumerate(min_sample_leaves):
+#    forest = RandomForestRegressor(n_estimators=500,
+#                                   min_samples_leaf=min_samples_leaf,
+#                                   max_features=None,
+#                                   random_state=42,
+#                                   n_jobs=-1)
+#    forest.fit(X_train, y_train)
+#    errors[i] = np.mean((y_test -  forest.predict(X_test)) ** 2)
+#    forests.append(forest)
+#
+#min_sample_leaf = min_sample_leaves[np.argmin(errors)]
+#forest = RandomForestRegressor(
+#    n_estimators=500,
+#    min_samples_leaf=min_sample_leaf,
+#    random_state=42,
+#    max_features=None,
+#    n_jobs=-1)
+#forest.fit(X_std, y)
+#r_sq = 1 - np.mean((forest.predict(X_std) - y) ** 2) / np.var(y)
+#print('RF R2 = ', r_sq)
+#
+#
+## global permutation-based importance
+#fig, ax = plt.subplots(figsize=(18, 6), ncols=2, sharex=True)
+#
+#forest_imp = permutation_importance(forest, X_std, y, random_state=42)
+#forest_imp /= np.sum(forest_imp)
+#order = np.argsort(forest_imp)
+#ax[0].barh(y=np.arange(5), width=forest_imp[order], color='gray',
+#        tick_label=np.asarray(cols)[order], height=0.5)
+#ax[0].set_xlabel('RF Variable Importance')
+#
+#forest_imp = drforest.feature_importances_
+#order = np.argsort(forest_imp)
+#ax[1].barh(y=np.arange(5), width=forest_imp[order], color='gray',
+#        tick_label=np.asarray(cols)[order], height=0.5)
+#ax[1].set_xlabel('DRF Variable Importance')
+#
+#fig.savefig(os.path.join(OUT_DIR, 'airquality_imp.png'),
+#           dpi=300, bbox_inches='tight')

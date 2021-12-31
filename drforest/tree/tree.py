@@ -20,6 +20,7 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
                  min_samples_leaf=3,
                  categorical_cols=None,
                  sdr_algorithm=None,
+                 presorted=False,
                  random_state=123):
         self.n_slices = n_slices
         self.max_features = max_features
@@ -27,6 +28,7 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
         self.min_samples_leaf = min_samples_leaf
         self.categorical_cols = categorical_cols
         self.sdr_algorithm = sdr_algorithm
+        self.presorted = presorted
         self.random_state = random_state
 
     def fit(self, X, y, sample_weight=None):
@@ -96,6 +98,7 @@ class DimensionReductionTreeRegressor(BaseEstimator, RegressorMixin):
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
             use_original_features=False,
+            presorted=self.presorted,
             seed=self.random_state)
 
         # fit overall SDR direction using slices determined by the leaf nodes
@@ -189,6 +192,7 @@ class DecisionTreeRegressor(BaseEstimator, RegressorMixin):
             max_depth=max_depth,
             min_samples_leaf=min_samples_leaf,
             use_original_features=True,
+            presorted=True,
             seed=self.random_state)
 
         return self

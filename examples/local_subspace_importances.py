@@ -18,7 +18,7 @@ n_samples = 2000
 n_features = 10
 n_points = 100
 signal_to_noise = 3
-n_iter = 10
+n_iter = 5
 OUT_DIR = 'lsvi_results'
 
 if not os.path.exists(OUT_DIR):
@@ -56,7 +56,9 @@ def run_lsvi_sim(dataset_name):
 
 
     drf_metrics = np.zeros((n_iter, 2))
+    drf_k_metrics = np.zeros((n_iter, 2))
     drf_max_metrics = np.zeros((n_iter, 2))
+    drf_k_max_metrics = np.zeros((n_iter, 2))
     save_metrics = np.zeros((n_iter, 2))
     sir_metrics = np.zeros((n_iter, 2))
     local_sir_metrics = np.zeros((n_iter, 2))
@@ -109,18 +111,26 @@ def run_lsvi_sim(dataset_name):
         # sample n_point indices and check directions
         indices = rng.choice(np.arange(n_samples), replace=False, size=n_points)
         pred_dirs = []
+        pred_dirs_k = []
         for forest in forests:
             pred_dirs.append(forest.local_principal_direction(
                 X[indices], n_jobs=-1))
+            pred_dirs_k.append(forest.local_principal_direction(
+                X[indices], k=2, n_jobs=-1))
 
         pred_dirs_max = []
+        pred_dirs_max_k = []
         if n_features > 5:
             for forest in forest_max:
                 pred_dirs_max.append(
                     forest.local_principal_direction(
                         X[indices], n_jobs=-1))
+                pred_dirs_max_k.append(
+                    forest.local_principal_direction(
+                        X[indices], k=2, n_jobs=-1))
         else:
             pred_dirs_max = pred_dirs
+            pred_dirs_max_k = pred_dirs_k
 
         true_dir = true_directions(X[indices])
 
@@ -129,10 +139,20 @@ def run_lsvi_sim(dataset_name):
         trcor = np.zeros(n_points)
         trcor[:] = -np.inf
 
+        frob_norm_k = np.zeros(n_points)
+        frob_norm_k[:] = np.inf
+        trcor_k = np.zeros(n_points)
+        trcor_k[:] = -np.inf
+
         frob_norm_max = np.zeros(n_points)
         frob_norm_max[:] = np.inf
         trcor_max = np.zeros(n_points)
         trcor_max[:] = -np.inf
+
+        frob_norm_max_k = np.zeros(n_points)
+        frob_norm_max_k[:] = np.inf
+        trcor_max_k = np.zeros(n_points)
+        trcor_max_k[:] = -np.inf
 
         frob_norm_save = np.zeros(n_points)
         trcor_save = np.zeros(n_points)
@@ -162,6 +182,19 @@ def run_lsvi_sim(dataset_name):
                 if trcork > trcor[i]:
                     trcor[i] = trcork
 
+            # DRForest LSE (k=2)
+            for pred_dir in pred_dirs_k:
+                pred_direc = pred_dir[i].reshape(-1, 1)
+                B_hat = np.dot(pred_direc, pred_direc.T)
+
+                frobk = np.sqrt(np.sum((B_true - B_hat) ** 2))
+                if frobk < frob_norm_k[i]:
+                    frob_norm_k[i] = frobk
+
+                trcork = np.trace(np.dot(B_true, B_hat))
+                if trcork > trcor_k[i]:
+                    trcor_k[i] = trcork
+
             # DRForest Max LSE
             for pred_dir_max in pred_dirs_max:
                 pred_direc = pred_dir_max[i].reshape(-1, 1)
@@ -174,6 +207,19 @@ def run_lsvi_sim(dataset_name):
                 trcork = np.trace(np.dot(B_true, B_hat))
                 if trcork > trcor_max[i]:
                     trcor_max[i] = trcork
+
+            # DRForest Max LSE (k=2)
+            for pred_dir_max in pred_dirs_max_k:
+                pred_direc = pred_dir_max[i].reshape(-1, 1)
+                B_hat = np.dot(pred_direc, pred_direc.T)
+
+                frobk = np.sqrt(np.sum((B_true - B_hat) ** 2))
+                if frobk < frob_norm_max_k[i]:
+                    frob_norm_max_k[i] = frobk
+
+                trcork = np.trace(np.dot(B_true, B_hat))
+                if trcork > trcor_max_k[i]:
+                    trcor_max_k[i] = trcork
 
             # global save
             B_hat = np.dot(save_dir, save_dir.T)
@@ -209,8 +255,12 @@ def run_lsvi_sim(dataset_name):
 
         drf_metrics[idx, 0] = np.mean(frob_norm)
         drf_metrics[idx, 1] = np.mean(trcor)
+        drf_k_metrics[idx, 0] = np.mean(frob_norm_k)
+        drf_k_metrics[idx, 1] = np.mean(trcor_k)
         drf_max_metrics[idx, 0] = np.mean(frob_norm_max)
         drf_max_metrics[idx, 1] = np.mean(trcor_max)
+        drf_k_max_metrics[idx, 0] = np.mean(frob_norm_max_k)
+        drf_k_max_metrics[idx, 1] = np.mean(trcor_max_k)
         save_metrics[idx, 0] = np.mean(frob_norm_save)
         save_metrics[idx, 1] = np.mean(trcor_save)
         sir_metrics[idx, 0] = np.mean(frob_norm_sir)
@@ -234,8 +284,12 @@ def run_lsvi_sim(dataset_name):
     print('Trace Correlation')
     print("DRForest {:.3f} +/- {:.3f}".format(
         np.mean(drf_metrics[:, 1]), np.std(drf_metrics[:, 1])))
+    print("DRForest (k=2) {:.3f} +/- {:.3f}".format(
+        np.mean(drf_k_metrics[:, 1]), np.std(drf_k_metrics[:, 1])))
     print("DRForest Max {:.3f} +/- {:.3f}".format(
         np.mean(drf_max_metrics[:, 1]), np.std(drf_max_metrics[:, 1])))
+    print("DRForest Max (k=2) {:.3f} +/- {:.3f}".format(
+        np.mean(drf_k_max_metrics[:, 1]), np.std(drf_k_max_metrics[:, 1])))
     print("Global SAVE {:.3f} +/- {:.3f}".format(
         np.mean(save_metrics[:, 1]), np.std(save_metrics[:, 1])))
     print("Global SIR {:.3f} +/- {:.3f}".format(
