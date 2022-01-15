@@ -129,8 +129,7 @@ loading_up = np.asarray(loading_up)
 loading_low = np.asarray(loading_low)
 
 for p in range(4):
-    ax[1].plot(loading_medians[:, p], 'o-', lw=2, label=cols[p], markersize=8,
-               linestyle='--')
+    ax[1].plot(loading_medians[:, p], 'o--', lw=2, label=cols[p], markersize=8)
     ax[1].fill_between(np.arange(12),
                        loading_low[:, p], loading_up[:, p], edgecolor='k', alpha=0.2)
 
