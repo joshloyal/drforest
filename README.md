@@ -11,7 +11,7 @@ This package provides the statistical estimation methods for dimension reduction
 BibTeX reference to cite, if you use this package:
 
 ```bibtex
-@article{loyal2021drforest,
+@article{loyal2022drforest,
     title = {Dimension Reduction Forests: Local Variable Importance using Structured Random Forests},
     author = {Joshua Daniel Loyal, Ruoqing Zhu, Yifan Cui, Xin Zhang},
     year = {2022},
