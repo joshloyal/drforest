@@ -14,8 +14,11 @@ BibTeX reference to cite, if you use this package:
 @article{loyal2021drforest,
     title = {Dimension Reduction Forests: Local Variable Importance using Structured Random Forests},
     author = {Joshua Daniel Loyal, Ruoqing Zhu, Yifan Cui, Xin Zhang},
-    year = {2021},
-    journal = {arXiv preprint arXiv:2103.13233}
+    year = {2022},
+    journal = {Journal of Computational and Graphical Statistics},
+    volume = {31}, 
+    number = {4},
+    pages = {1104--1113}
 }
 ```
 
